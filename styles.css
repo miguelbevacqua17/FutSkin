@@ -1,0 +1,345 @@
+*{
+    font-family: 'Oswald', sans-serif;
+}
+
+body{
+    background-color: #010b17;
+    color: #fff;
+}
+
+/*HEADER*/
+
+.logo{
+    padding-left: 15px;
+    width: 160px;
+    height: auto;
+}
+
+.main-header{
+    padding: 20px;
+}
+
+.main-header-top-bar{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    border-style:dotted;
+    border-color: red;
+}
+
+.barra-izquierda{
+    width: 45%;
+    justify-content: left;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-style:dotted;
+    border-color: red;
+}
+
+.barra-derecha{
+    display: flex;
+    flex-direction: row;
+    width: 45%;
+    align-items: center;
+    justify-content: space-evenly;
+    border-style:dotted;
+    border-color: red;
+}
+
+.barra-derecha li a{
+    padding: 0 3px;
+    color:#fff;
+}
+
+.barra-derecha li a :hover{
+    color:#143663;
+}
+
+
+.barra-logeado{
+    width: 80%;
+    margin-top: 10%;
+    display:flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    bottom:25%;
+}
+
+.ul-opciones{
+    width: 50%;
+    display: flex;
+    flex-direction: row;
+    list-style-type: none;
+    align-items: center;
+}
+
+.ul-opciones li{
+    margin: 0 5%;
+    padding: 10px;   
+}
+
+.main-header-bottom-bar{
+    margin-top: 15px;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: center;
+    border-style:dotted;
+    border-color: red;
+}
+
+.main-header-bottom-bar ul {
+    display: flex;
+    flex-direction: row;
+}
+
+.main-header-bottom-bar li {
+    display: flex;
+    flex-direction: row;
+    font-size: 16px;
+    margin: 10px;
+}
+
+
+/*SLIDER*/
+
+.slider {
+    position: relative;
+    width: 1200px;
+    height: 400px;
+    margin: auto;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+    display: block;
+    border-style:dotted;
+    border-color: red;
+}
+  
+.slider ul {
+    position: relative;
+    list-style: none;
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    transition: all 750ms ease;
+    left: 0;
+}
+
+.slider ul li {
+    position: relative;
+    height: 100%;
+    float: left;
+}
+
+.slider ul li img{
+    width: 1200px;
+    height: 400px;
+}
+
+
+/*MAIN*/
+
+main{
+    text-align: center;
+}
+
+.banner{
+    padding-top: 15px;
+    width: 100%;
+    cursor: pointer;
+}
+
+.titulos{
+    color: #fff;
+    margin-top: 50px;
+    margin-bottom: 20px;
+    font-size: 2.5rem;
+}
+
+
+.products-wrapper {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.product-title {        
+    font-size: 1.8em;
+    font-weight: 400;
+    color: blue;
+}
+
+.row{
+    width:90%;
+    margin:auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    border-style:dotted;
+    border-color: red;
+}
+
+.product-box {
+    width: 90%;
+    height: 400px;
+    background-color: #fff;
+    border-radius: 5px;
+    margin: 4% 10%;
+    box-shadow: rgba(103, 150, 177, 0.733) 0px 7px 20px 0px;
+    
+}
+  
+.product-box:hover{
+    box-shadow: rgba(65, 157, 211, 0.877) 0px 7px 29px 0px;
+}
+  
+.product-box img{
+    margin-top: 10px;
+    height: 250px;        
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    max-width: 90%;
+}
+  
+.product-box a {
+    display: block;
+}
+
+
+/*MAIN - NOTICIAS*/
+
+.noticias{
+    color: #fff;
+    text-align: center;
+    margin-top: 6vh;
+    font-size: 2rem;
+}
+
+.noticia-banner{
+    background: url("/img/kru.jpg") no-repeat center top;
+    background-size: 90vw;
+    background-size: cover;
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    margin:auto;
+    width: 100vh;
+}
+
+.noticia-banner{
+    color:#fff;
+    margin-bottom: 1vh;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 50px 0;
+}
+
+.noticia-banner h4{
+    font-size: 1rem;
+    background-color: rgba(0,0,0,0.6);
+    background-size: 50vw;
+    margin:0 2.77vw;
+}
+
+.noticia-banner p{
+    font-size: 0.70rem;
+    background-color: rgba(0,0,0,0.6);
+    background-size: 50vw;
+    margin:1vh 2.77vw;
+}
+
+a.btn{
+    cursor:pointer;
+    display:inline-block;
+    font-weight: 600;
+    font-size: 1.1rem;
+    padding: 5% 0;
+    color:#fff;
+    margin-bottom: 5%; 
+}
+
+.btn:hover{
+    font-size:16px;
+    color:#fff;
+    border: 2px solid #fff;
+}
+
+
+/*FOOTER*/
+/*FOOTER - REDES SOCIALES*/
+
+.social{
+    margin: 30px;
+    position: relative;
+}
+
+.social p{
+    text-align:center;
+    font-size:1.5rem;
+    margin-bottom:20px;
+    color: #fff;
+}
+
+.links{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.links a{
+    margin:0 30px;
+}
+
+
+/*FOOTER*/
+
+.hr-footer{
+    width: 90%;
+}
+
+.main-footer{
+    background:#010b17;
+    padding:35px 0;
+}
+
+.footer-container{
+    display:flex;
+    flex-direction: row;
+    gap:6.36vw;
+    align-items:flex-start;
+    justify-content: center;
+}
+
+.footer-container h3{
+    color:#fff;
+    font-size: 0.75rem;
+    list-style-type: none;
+}
+
+.footer-container h3:hover{
+    color:#143663
+}
+
+.footer-container ul{
+    list-style-type: none;
+}
+
+.copy{
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    padding-left: 50px;
+    align-items: center;
+    color:#fff;
+    font-size: 0.75rem;
+    justify-content: center;
+}
+
+
+
