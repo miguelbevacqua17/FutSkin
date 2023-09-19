@@ -163,18 +163,40 @@ https://templatemo.com/tm-559-zay-shop
                         <label for="inputname">Nombre del producto</label>
                         <input type="text" class="form-control mt-1" id="name" name="name" placeholder="Nombre">
                     </div>
+                    
                     <div class="form-group col-md-6 mb-3">
                         <label for="inputemail">Precio</label>
                         <input type="email" class="form-control mt-1" id="precio" name="precio" placeholder="Precio">
                     </div>
+
+                    <div class="form-group col-md-6 mb-3">
+                        <label for="inputname">Categoría</label>
+                        <input type="text" class="form-control mt-1" id="name" name="name" placeholder="Categoría">
+                        
+                        <!--
+                        <select name="category" id="category" class="usuario">
+                            <% for (let i=0; i < categorias.length ; i++) { %>
+                                <option value="<%=categorias[i].id%>">
+                                <%=categorias[i].nombre%>
+                                </option>
+                            <% } %>   
+                        </select>
+                        
+                        -->
+                    </div>
+
+                    <div class="form-group col-md-6 mb-3">
+                        <label for="inputname">Descuento</label>
+                        <input type="text" class="form-control mt-1" id="name" name="name" placeholder="Descuento">
+                    </div>
                 </div>
                 <div class="mb-3">
-                    <label for="inputsubject">Descripcion</label>
+                    <label for="inputsubject">Descripción</label>
                     <input type="text" class="form-control mt-1" id="descripcion" name="descripcion" placeholder="Descripcion">
                 </div>
                 <div class="mb-3">
-                    <label for="">Imagen</label>
-                    <textarea class="form-control mt-1" id="message" name="message" placeholder="Adjuntar la imagen del producto" rows="8"></textarea>
+                    <label for="">Imagen del producto</label>
+                    <input type="file" name="image" class="usuario" id="image">
                 </div>
                 <div class="row">
                     <div class="col text-end mt-2">
