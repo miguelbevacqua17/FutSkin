@@ -1,0 +1,96 @@
+CREATE DATABASE [IF NOT EXISTS] futskin_db
+USE futskin_db
+
+CREATE TABLE categorias (
+id INT NOT NULL AUTO_INCREMENT,
+nombre VARCHAR(255) DEFAULT NULL,
+descripcion VARCHAR(510) DEFAULT NULL,
+created_at DATETIME DEFAULT NULL, 
+updated_at DATETIME DEFAULT NULL, 
+deleted_at DATETIME DEFAULT NULL, 
+PRIMARY KEY (id)
+);
+
+
+CREATE TABLE `futskin_bd`.`categorias` (`id` INT NOT NULL AUTO_INCREMENT , `nombre` VARCHAR(255) NULL , `descripcion` VARCHAR(255) NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+
+CREATE TABLE productos (
+id INT NOT NULL AUTO_INCREMENT,
+categoria_fk INT DEFAULT NULL,
+nombre VARCHAR(255) DEFAULT NULL,
+imagen VARCHAR(255) DEFAULT NULL,
+descripcion VARCHAR(510) DEFAULT NULL,
+precio_lista DECIMAL DEFAULT NULL,
+descuento DECIMAL DEFAULT NULL,
+stock INT DEFAULT NULL,
+deleteable BOOLEAN DEFAULT NULL,
+created_at DATETIME DEFAULT NULL,
+updated_at DATETIME DEFAULT NULL,
+deleted_at DATETIME DEFAULT NULL,
+PRIMARY KEY (id),
+FOREIGN KEY (categoria_fk) REFERENCES categorias(id)
+);
+
+
+CREATE TABLE `futskin_bd`.`productos` (`id` INT NOT NULL AUTO_INCREMENT , `categoria_fk` INT NULL , `nombre` VARCHAR(255) NULL , `imagen` VARCHAR(255) NULL , `descripcion` VARCHAR(510) NULL , `precio_lista` DECIMAL NULL , `descuento` DECIMAL NULL , `stock` INT NULL , `deleteable` BOOLEAN NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+
+CREATE TABLE facturas (
+id INT NOT NULL AUTO_INCREMENT,
+total_a_pagar DECIMAL DEFAULT NULL,
+PRIMARY KEY (id)
+);
+
+
+CREATE TABLE `futskin_bd`.`facturas` (`id` INT NOT NULL AUTO_INCREMENT , `total_a_pagar` DECIMAL NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+
+CREATE TABLE envios (
+id INT NOT NULL AUTO_INCREMENT,
+barrio VARCHAR(255) DEFAULT NULL,
+direccion VARCHAR(255) DEFAULT NULL,
+altura VARCHAR(255) DEFAULT NULL,
+piso VARCHAR(255) DEFAULT NULL,
+PRIMARY KEY (id)
+);
+
+
+CREATE TABLE `futskin_bd`.`envios` (`id` INT NOT NULL AUTO_INCREMENT , `barrio` VARCHAR(255) NULL , `direccion` VARCHAR(255) NULL , `altura` VARCHAR(255) NULL , `piso` VARCHAR(255) NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+
+CREATE TABLE clientes (
+id INT NOT NULL AUTO_INCREMENT,
+envio_fk INT NULL,
+nombre VARCHAR(255) DEFAULT NULL,
+apellido VARCHAR(255) DEFAULT NULL,
+email VARCHAR(255) DEFAULT NULL,
+contrasena VARCHAR(255) DEFAULT NULL,
+rol BOOLEAN DEFAULT NULL,
+imagen VARCHAR(255) DEFAULT NULL,
+created_at DATETIME, 
+updated_at DATETIME, 
+deleted_at DATETIME, 
+PRIMARY KEY (id),
+FOREIGN KEY (envio_fk) REFERENCES envios(id)
+);
+
+
+CREATE TABLE `futskin_bd`.`clientes` (`id` INT NOT NULL AUTO_INCREMENT , `envio_fk` INT NULL , `nombre` VARCHAR(255) NULL , `apellido` VARCHAR(255) NULL , `email` VARCHAR(255) NULL , `contrasena` VARCHAR(255) NULL , `rol` BOOLEAN NULL , `imagen` VARCHAR(255) NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+
+CREATE TABLE pedidos (
+id INT NOT NULL AUTO_INCREMENT,
+cliente_fk INT DEFAULT NULL,
+producto_fk INT DEFAULT NULL,
+factura_fk INT DEFAULT NULL,
+precio_venta DECIMAL DEFAULT NULL,
+cantidad_prod INT DEFAULT NULL,
+estado VARCHAR(255) DEFAULT NULL, 
+PRIMARY KEY (id),
+FOREIGN KEY (cliente_fk) REFERENCES clientes(id),
+FOREIGN KEY (producto_fk) REFERENCES productos(id),
+FOREIGN KEY (factura_fk) REFERENCES facturas(id)
+);
+
+CREATE TABLE `futskin_bd`.`pedidos` (`id` INT NOT NULL AUTO_INCREMENT , `cliente_fk` INT NULL , `producto_fk` INT NULL , `factura_fk` INT NULL , `precio_venta` DECIMAL NULL , `cantidad_prod` INT NULL , `estado` VARCHAR(255) NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
