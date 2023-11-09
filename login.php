@@ -1,3 +1,17 @@
+<?php
+
+include "signin.php"; 
+include "bd.php";
+include "sesion.php";
+
+$sql3 = "SELECT * FROM clientes";
+  $clientes = $con->prepare($sql3);
+  $clientes->execute();
+  $result = $clientes->get_result();
+  $data3 = $result->fetch_all(MYSQLI_ASSOC);
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -103,7 +117,7 @@
                         <i class="fa fa-fw fa-cart-arrow-down text-dark mr-1"></i>
                         <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">2</span>
                     </a>
-                    <a class="nav-icon position-relative text-decoration-none" href="/views/login.html">
+                    <a class="nav-icon position-relative text-decoration-none" href="/login/index.html">
                         <i class="fa fa-fw fa-user text-dark mr-3"></i>
                         <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">1</span>
                     </a>
@@ -121,7 +135,7 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-sm-6 text-black">
-        <!-- 
+        <!--
           <div class="px-5 ms-xl-4">
             <i class="fas fa-crow fa-2x me-3 pt-5 mt-xl-4" style="color: #709085;"></i>
             <span class="h1 fw-bold mb-0">FutSkin</span>
@@ -131,7 +145,7 @@
   
             <form style="width: 23rem;">
   
-              <h3 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Crear usuario</h3>
+              <h3 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Inicio de sesión</h3>
   
               <div class="form-outline mb-4">
                 <input type="email" id="form2Example18" class="form-control form-control-lg" />
@@ -142,17 +156,16 @@
                 <input type="password" id="form2Example28" class="form-control form-control-lg" />
                 <label class="form-label" for="form2Example28">Contraseña</label>
               </div>
-
-              <div class="form-outline mb-4">
-                <input type="password" id="form2Example28" class="form-control form-control-lg" />
-                <label class="form-label" for="form2Example28">Repetir contraseña</label>
-              </div>
   
               <div class="pt-1 mb-4">
-                <button class="btn btn-info btn-lg btn-block" type="button" style="background-color: #198754; color: white;">Crear usuario</button>
+                <button class="btn btn-info btn-lg btn-block" type="button" onclick="redirigir('signup.html')"  style="background-color: #198754; color: white;">Iniciar sesión</button>
               </div>
-  
 
+            <!--
+                <p class="small mb-5 pb-lg-2"><a class="text-muted" href="#!">Olvidaste tu contraseña?</a></p>
+            -->
+                <p>No tenés una cuenta? <a href="/views/register.html" class="link-info">REGISTRARSE AQUÍ</a></p>
+  
             </form>
   
           </div>
@@ -273,5 +286,11 @@
     <script src="assets/js/custom.js"></script>
     <!-- End Script -->
 </body>
+
+<script type="text/javascript">
+  function redirigir(url){
+    window.location.href = url;
+  }  
+</script>
 
 </html>
