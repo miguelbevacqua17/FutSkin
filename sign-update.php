@@ -9,7 +9,7 @@ function main() {
       $apellido = $_POST['apellido'];       
       $nombre = $_POST['nombre']; 
       $email = $_SESSION['email']; 
-      $password = $_POST['password']; 
+      $password = $_POST['contrasena']; 
   
     // abrir conexión a base de datos, en este caso 'bd_usuario'
     $conn = conectarBDUsuario();

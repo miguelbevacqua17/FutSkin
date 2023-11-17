@@ -1,3 +1,23 @@
+<?php
+  include "sesion.php";
+  include "bd.php";
+
+  $conn = conectarBDUsuario();
+
+  $sesion = $_SESSION['email'];
+
+  $usuario = consultaDatosUsuario($conn, $sesion); 
+  $nombre = $usuario['nombre'];
+  $id = $usuario['id'];
+
+  echo "User Email: $sesion // ";
+  echo "User ID: $id // ";
+
+  $productosCarrito = obtenerProductosCarrito($id);
+  $precioTotal = calcularPrecioTotal($productosCarrito);
+
+?>  
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -42,86 +62,73 @@
     <!-- Close Top Nav -->
 
 
-    <!-- Header -->
-    <nav class="navbar navbar-expand-lg navbar-light shadow">
-        <div class="container d-flex justify-content-between align-items-center">
+         <!-- Header -->
+         <nav class="navbar navbar-expand-lg navbar-light shadow">
+            <div class="container d-flex justify-content-between align-items-center">
+    
+                <a class="navbar-brand text-success logo h1 align-self-center" href="/principal.php">
+                    FutSkin
+                </a>
+    
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#templatemo_main_nav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+    
+                <div class="align-self-center collapse navbar-collapse flex-fill  d-lg-flex justify-content-lg-between" id="templatemo_main_nav">
+                    <div class="flex-fill">
+                        <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="principal.php">Inicio</a>
+                            </li>
 
-            <a class="navbar-brand text-success logo h1 align-self-center" href="/views/index.html">
-                FutSkin
-            </a>
-
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#templatemo_main_nav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="align-self-center collapse navbar-collapse flex-fill  d-lg-flex justify-content-lg-between" id="templatemo_main_nav">
-                <div class="flex-fill">
-                    <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/views/index.html">Inicio</a>
-                        </li>
-
-                        <!--
-                        <li class="nav-item">
-                            <a class="nav-link" href="/views/about.html">Sobre Nosotros</a>
-                        </li>
-                        -->
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="/views/shop.html">Tienda</a>
-                        </li>
-
-                        <!--
-                        <li class="nav-item">
-                            <a class="nav-link" href="/views/contact.html">Contacto</a>
-                        </li>
-                        -->
-                        
-                        <li class="nav-item">
-                            <a class="nav-link" href="/views/creacion-producto.html">Nuevo producto</a>
-                        </li>
-                    </ul>
-                </div>
-                
-                <div class="navbar align-self-center d-flex">
-
-                <!--
-                    <div class="d-lg-none flex-sm-fill mt-3 mb-4 col-7 col-sm-auto pr-3">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="inputMobileSearch" placeholder="Search ...">
-                            <div class="input-group-text">
-                                <i class="fa fa-fw fa-search"></i>
-                            </div>
-                        </div>
+                            <li class="nav-item">
+                                <a class="nav-link" href="shop.php">Tienda</a>
+                            </li>
+                            
+                            <li class="nav-item">
+                                <a class="nav-link" href="/views/creacion-producto.html">Nuevo producto</a>
+                            </li>
+    
+                            <li class="nav-item">
+                                <a class="nav-link" href="/views/admin.html"><?php echo "Hola, $sesion "?></a>
+                            </li>
+                            
+                            <li class="nav-item">
+                            <form action="logout.php" method="post">
+                              <button type="submit">Logout</button>
+                            </form>
+                            </li>
+                        </ul>
                     </div>
-                    <a class="nav-icon d-none d-lg-inline" href="#" data-bs-toggle="modal" data-bs-target="#templatemo_search">
-                        <i class="fa fa-fw fa-search text-dark mr-2"></i>
-                    </a>
-                -->
-
-                    <a class="nav-icon position-relative text-decoration-none" href="/views/carrito.html">
-                        <i class="fa fa-fw fa-cart-arrow-down text-dark mr-1"></i>
-                        <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">2</span>
-                    </a>
-                    <a class="nav-icon position-relative text-decoration-none" href="/views/login.html">
-                        <i class="fa fa-fw fa-user text-dark mr-3"></i>
-                        <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">1</span>
-                    </a>
+                    
+                    <div class="navbar align-self-center d-flex">
+                        <a class="nav-icon position-relative text-decoration-none" href="/views/carrito.html">
+                            <i class="fa fa-fw fa-cart-arrow-down text-dark mr-1"></i>
+                            <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">cart</span>
+                        </a>
+                        <a class="nav-icon position-relative text-decoration-none" href="/signin.php">
+                            <i class="fa fa-fw fa-user text-dark mr-3"></i>
+                            <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">login</span>
+                        </a>
+    
+                        <a class="nav-icon position-relative text-decoration-none" href="/views/user.html">
+                            <i class="fa fa-fw fa-user text-dark mr-3"></i>
+                            <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">user</span>
+                        </a>
+                    </div>
+    
                 </div>
-
+    
             </div>
-
-        </div>
-    </nav>
-    <!-- Close Header -->
-
+        </nav>
+        <!-- Close Header -->
 
 
 <div class="container px-3 my-5 clearfix">
     <!-- Shopping cart table -->
     <div class="card">
         <div class="card-header">
-            <h2>Shopping Cart</h2>
+            <h2>Carrito</h2>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -138,67 +145,55 @@
                 </thead>
                 <tbody>
         
-                  <tr>
+                <?php
+                        // Verificar si hay productos en el carrito antes de iterar
+                        if (!empty($productosCarrito)) {
+                        // Iterar sobre los productos del carrito y generar filas de la tabla
+                        foreach ($productosCarrito as $producto) {
+                            if (array_key_exists('cantidad_prod', $producto)) {
+                                // Acceder a la cantidad si existe
+                                $cantidad = $producto['cantidad_prod'];
+                                // Resto del código para mostrar la cantidad...
+                            } else {
+                                // Manejar el caso en el que 'cantidad_prod' no está definido
+                                echo "La clave 'cantidad_prod' no está definida para este producto.";
+                            }
+                            ?>
+
+                <tr>
                     <td class="p-4">
                       <div class="media align-items-center">
-                        <img src="/assets/img/camiseta-boca-1.jpg" class="d-block ui-w-40 ui-bordered mr-4" alt="" height="300" width="300">
+                        <img src="/assets/img/<?php echo $producto['imagen']; ?>" class="d-block ui-w-40 ui-bordered mr-4" alt="" height="300" width="300">
                         <div class="media-body">
-                          <a href="#" class="d-block text-dark">Product 1</a>
-                          <small>
-                            <span class="text-muted">Color:</span>
-                            <span class="ui-product-color ui-product-color-sm align-text-bottom" style="background:#e81e2c;"></span> &nbsp;
-                            <span class="text-muted">Size: </span> EU 37 &nbsp;
-                            <span class="text-muted">Ships from: </span> China
-                          </small>
+                          <a href="#" class="d-block text-dark"><?php echo $producto['nombre']; ?></a>
                         </div>
                       </div>
                     </td>
-                    <td class="text-right font-weight-semibold align-middle p-4">$57.55</td>
-                    <td class="align-middle p-4"><input type="text" class="form-control text-center" value="2"></td>
-                    <td class="text-right font-weight-semibold align-middle p-4">$115.1</td>
-                    <td class="text-center align-middle px-0"><a href="#" class="shop-tooltip close float-none text-danger" title="" data-original-title="Remove">×</a></td>
-                  </tr>
-        
-                  <tr>
-                    <td class="p-4">
-                      <div class="media align-items-center">
-                        <img src="/assets/img/camiseta-boca-1.jpg" class="d-block ui-w-40 ui-bordered mr-4" alt="" height="300" width="300">
-                        <div class="media-body">
-                          <a href="#" class="d-block text-dark">Product 2</a>
-                          <small>
-                            <span class="text-muted">Color:</span>
-                            <span class="ui-product-color ui-product-color-sm align-text-bottom" style="background:#000;"></span> &nbsp;
-                            <span class="text-muted">Storage: </span> 32GB &nbsp;
-                            <span class="text-muted">Warranty: </span> Standard - 1 year &nbsp;
-                            <span class="text-muted">Ships from: </span> China
-                          </small>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="text-right font-weight-semibold align-middle p-4">$1049.00</td>
-                    <td class="align-middle p-4"><input type="text" class="form-control text-center" value="1"></td>
-                    <td class="text-right font-weight-semibold align-middle p-4">$1049.00</td>
-                    <td class="text-center align-middle px-0"><a href="#" class="shop-tooltip close float-none text-danger" title="" data-original-title="Remove">×</a></td>
-                  </tr>
-        
+                    <td class="text-right font-weight-semibold align-middle p-4">$<?php echo $producto['precio_lista']; ?></td>
+                    <td class="align-middle p-4"><input type="text" class="form-control text-center" value="<?php echo $producto['cantidad_prod']; ?>"></td>
+                    <td class="text-right font-weight-semibold align-middle p-4">$<?php echo $producto['precio_lista'] * $producto['cantidad_prod']; ?></td>
+                    <td class="text-center align-middle px-0"><a href="/eliminar-producto.php?id=' . $producto['id'] . '" class="shop-tooltip close float-none text-danger" title="Eliminar" data-original-title="Eliminar">×</a></td>
+                </tr>
+                
+                <?php
+                            }
+                        } else {
+                            // Mensaje si no hay productos en el carrito
+                            echo '<tr><td colspan="5" class="text-center">No hay productos en el carrito.</td></tr>';
+                        }
+                        ?>
+
                 </tbody>
               </table>
             </div>
             <!-- / Shopping cart table -->
         
             <div class="d-flex flex-wrap justify-content-between align-items-center pb-4">
-              <div class="mt-4">
-                <label class="text-muted font-weight-normal">Código de descuento</label>
-                <input type="text" placeholder="Ingresar código" class="form-control">
-              </div>
               <div class="d-flex">
-                <div class="text-right mt-4 mr-5">
-                  <label class="text-muted font-weight-normal m-0">Discount</label>
-                  <div class="text-large"><strong>$20</strong></div>
                 </div>
                 <div class="text-right mt-4">
-                  <label class="text-muted font-weight-normal m-0">Total price</label>
-                  <div class="text-large"><strong>$1164.65</strong></div>
+                  <label class="text-muted font-weight-normal m-0">PRECIO TOTAL</label>
+                  <div class="text-large"><strong>$<?php echo $precioTotal?></strong></div>
                 </div>
               </div>
             </div>

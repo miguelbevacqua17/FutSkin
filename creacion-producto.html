@@ -1,16 +1,3 @@
-<?php
-
-include "signin.php"; 
-include "bd.php";
-include "sesion.php";
-
-$sql3 = "SELECT * FROM clientes";
-  $clientes = $con->prepare($sql3);
-  $clientes->execute();
-  $result = $clientes->get_result();
-  $data3 = $result->fetch_all(MYSQLI_ASSOC);
-
-?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -21,7 +8,7 @@ $sql3 = "SELECT * FROM clientes";
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="apple-touch-icon" href="/assets/img/apple-icon.png">
-    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/img/favicon.ico">
 
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/templatemo.css">
@@ -31,6 +18,15 @@ $sql3 = "SELECT * FROM clientes";
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
     <link rel="stylesheet" href="/assets/css/fontawesome.min.css">
 
+    <!-- Load map styles -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
+<!--
+    
+TemplateMo 559 Zay Shop
+
+https://templatemo.com/tm-559-zay-shop
+
+-->
 </head>
 
 <body>
@@ -117,7 +113,7 @@ $sql3 = "SELECT * FROM clientes";
                         <i class="fa fa-fw fa-cart-arrow-down text-dark mr-1"></i>
                         <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">2</span>
                     </a>
-                    <a class="nav-icon position-relative text-decoration-none" href="/login/index.html">
+                    <a class="nav-icon position-relative text-decoration-none" href="/views/login.html">
                         <i class="fa fa-fw fa-user text-dark mr-3"></i>
                         <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">1</span>
                     </a>
@@ -130,57 +126,79 @@ $sql3 = "SELECT * FROM clientes";
     <!-- Close Header -->
 
 
-
-<section class="vh-100">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-6 text-black">
-        <!--
-          <div class="px-5 ms-xl-4">
-            <i class="fas fa-crow fa-2x me-3 pt-5 mt-xl-4" style="color: #709085;"></i>
-            <span class="h1 fw-bold mb-0">FutSkin</span>
-          </div>
-        -->
-          <div class="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
-  
-            <form style="width: 23rem;">
-  
-              <h3 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Inicio de sesión</h3>
-  
-              <div class="form-outline mb-4">
-                <input type="email" id="form2Example18" class="form-control form-control-lg" />
-                <label class="form-label" for="form2Example18">Email</label>
-              </div>
-  
-              <div class="form-outline mb-4">
-                <input type="password" id="form2Example28" class="form-control form-control-lg" />
-                <label class="form-label" for="form2Example28">Contraseña</label>
-              </div>
-  
-              <div class="pt-1 mb-4">
-                <button class="btn btn-info btn-lg btn-block" type="button" onclick="redirigir('signup.html')"  style="background-color: #198754; color: white;">Iniciar sesión</button>
-              </div>
-
-            <!--
-                <p class="small mb-5 pb-lg-2"><a class="text-muted" href="#!">Olvidaste tu contraseña?</a></p>
-            -->
-                <p>No tenés una cuenta? <a href="/views/register.html" class="link-info">REGISTRARSE AQUÍ</a></p>
-  
+    <!-- Modal -->
+    <div class="modal fade bg-white" id="templatemo_search" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="w-100 pt-1 mb-5 text-right">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="" method="get" class="modal-content modal-body border-0 p-0">
+                <div class="input-group mb-2">
+                    <input type="text" class="form-control" id="inputModalSearch" name="q" placeholder="Search ...">
+                    <button type="submit" class="input-group-text bg-success text-light">
+                        <i class="fa fa-fw fa-search text-white"></i>
+                    </button>
+                </div>
             </form>
-  
-          </div>
-  
         </div>
-        <div class="col-sm-6 px-0 d-none d-sm-block">
-          <img src="/assets/img/categoria-seleccion.jpg"
-            alt="Login image" class="w-100 vh-100" style="object-fit: cover; object-position: left;">
-        </div>
-      </div>
     </div>
-  </section>
 
 
-  
+    <!-- Start Content Page -->
+    <div class="container-fluid bg-light py-5">
+        <div class="col-md-6 m-auto text-center">
+            <h1 class="h1">Crear nuevo producto</h1>
+            <p>
+                Vista para la creación de un nuevo producto
+            </p>
+        </div>
+    </div>
+
+
+    <!-- Start Contact -->
+    <div class="container py-5">
+        <div class="row py-5">
+            <form class="col-md-9 m-auto" method="post" role="form">
+                <div class="row">
+                    <div class="form-group col-md-6 mb-3">
+                        <label for="inputname">Nombre del producto</label>
+                        <input type="text" class="form-control mt-1" id="nombre" name="nombre" placeholder="Nombre">
+                    </div>
+                    
+                    <div class="form-group col-md-6 mb-3">
+                        <label for="inputemail">Precio</label>
+                        <input type="text" class="form-control mt-1" id="precio" name="precio" placeholder="Precio">
+                    </div>
+
+                    <div class="form-group col-md-6 mb-3">
+                        <label for="inputname">Categoría</label>
+                        <input type="text" class="form-control mt-1" id="categoria" name="categoria" placeholder="Categoría">                    
+                    </div>
+
+                    <div class="form-group col-md-6 mb-3">
+                        <label for="inputname">Descuento</label>
+                        <input type="text" class="form-control mt-1" id="descuento" name="descuento" placeholder="Descuento">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="inputsubject">Descripción</label>
+                    <input type="text" class="form-control mt-1" id="descripcion" name="descripcion" placeholder="Descripcion">
+                </div>
+                <div class="mb-3">
+                    <label for="">Imagen del producto</label>
+                    <input type="file" name="image" class="usuario" id="image">
+                </div>
+                <div class="row">
+                    <div class="col text-end mt-2">
+                        <button type="submit" onclick="redirigir('principal.php')"class="btn btn-success btn-lg px-3">Enviar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- End Contact -->
+
+
     <!-- Start Footer -->
     <footer class="bg-dark" id="tempaltemo_footer">
         <div class="container">
@@ -278,19 +296,19 @@ $sql3 = "SELECT * FROM clientes";
     </footer>
     <!-- End Footer -->
 
+    <script type="text/javascript">
+        function redirigir(url){
+          window.location.href = url;
+        }  
+      </script>
+
     <!-- Start Script -->
-    <script src="assets/js/jquery-1.11.0.min.js"></script>
-    <script src="assets/js/jquery-migrate-1.2.1.min.js"></script>
-    <script src="assets/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/templatemo.js"></script>
-    <script src="assets/js/custom.js"></script>
+    <script src="/assets/js/jquery-1.11.0.min.js"></script>
+    <script src="/assets/js/jquery-migrate-1.2.1.min.js"></script>
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/templatemo.js"></script>
+    <script src="/assets/js/custom.js"></script>
     <!-- End Script -->
 </body>
-
-<script type="text/javascript">
-  function redirigir(url){
-    window.location.href = url;
-  }  
-</script>
 
 </html>

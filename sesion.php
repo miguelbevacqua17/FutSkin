@@ -1,10 +1,13 @@
 <?php
 
 session_start();
-if (isset($_REQUEST["accion"])){  
-    if ($_REQUEST["accion"]=="cerrarSesion" && isset($_SESSION['email'])){
+if (isset($_GET["accion"])){
+  
+    if ($_GET["accion"]=="cerrarSesion" && isset($_SESSION['email'])){
+       
       cerrarSesion('email');
-    }    
+    }
+    
 }
 
 function cerrarSesion($clave){

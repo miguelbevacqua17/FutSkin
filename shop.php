@@ -2,19 +2,15 @@
   include "sesion.php";
   include "bd.php";
 
-  $con = conectarBDUsuario();
+  $conn = conectarBDUsuario();
 
-  $sql = "SELECT * FROM productos";
-  $prods = $con->prepare($sql);
-  $prods->execute();
-  $result = $prods->get_result();
-  $data = $result->fetch_all(MYSQLI_ASSOC);
+  $sesion = $_SESSION['email'];
 
-  $sql2 = "SELECT * FROM categorias";
-  $categorias = $con->prepare($sql2);
-  $categorias->execute();
-  $result = $categorias->get_result();
-  $data2 = $result->fetch_all(MYSQLI_ASSOC);
+  echo "User Email: $sesion";
+
+  $categoriasHTML = traerCategoriasHTML();
+  $productosHTML = traerProductosHTML("detalle");
+  $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
 
 ?>  
 
@@ -37,13 +33,6 @@
     <!-- Load fonts style after rendering the layout styles -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
     <link rel="stylesheet" href="/assets/css/fontawesome.min.css">
-<!--
-    
-TemplateMo 559 Zay Shop
-
-https://templatemo.com/tm-559-zay-shop
-
--->
 </head>
 
 <body>
@@ -51,96 +40,72 @@ https://templatemo.com/tm-559-zay-shop
     <nav class="navbar navbar-expand-lg bg-dark navbar-light d-none d-lg-block" id="templatemo_nav_top">
         <div class="container text-light">
             <div class="w-100 d-flex justify-content-between">
-                <div>
-                    <i class="fa fa-envelope mx-2"></i>
-                    <a class="navbar-sm-brand text-light text-decoration-none" href="mailto:info@company.com">contacto@futskin.com</a>
-                    <i class="fa fa-phone mx-2"></i>
-                    <a class="navbar-sm-brand text-light text-decoration-none" href="tel:">4200 - 7777</a>
-                </div>
-                <div>
-                    <a class="text-light" href="https://facebook.com/" target="_blank" rel="sponsored"><i class="fab fa-facebook-f fa-sm fa-fw me-2"></i></a>
-                    <a class="text-light" href="https://www.instagram.com/" target="_blank"><i class="fab fa-instagram fa-sm fa-fw me-2"></i></a>
-                    <a class="text-light" href="https://twitter.com/" target="_blank"><i class="fab fa-twitter fa-sm fa-fw me-2"></i></a>
-                    <a class="text-light" href="https://www.linkedin.com/" target="_blank"><i class="fab fa-linkedin fa-sm fa-fw"></i></a>
-                </div>
             </div>
         </div>
     </nav>
     <!-- Close Top Nav -->
 
 
-    <!-- Header -->
-    <nav class="navbar navbar-expand-lg navbar-light shadow">
-        <div class="container d-flex justify-content-between align-items-center">
+        <!-- Header -->
+        <nav class="navbar navbar-expand-lg navbar-light shadow">
+            <div class="container d-flex justify-content-between align-items-center">
+    
+                <a class="navbar-brand text-success logo h1 align-self-center" href="/principal.php">
+                    FutSkin
+                </a>
+    
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#templatemo_main_nav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+    
+                <div class="align-self-center collapse navbar-collapse flex-fill  d-lg-flex justify-content-lg-between" id="templatemo_main_nav">
+                    <div class="flex-fill">
+                        <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="principal.php">Inicio</a>
+                            </li>
 
-            <a class="navbar-brand text-success logo h1 align-self-center" href="/views/index.html">
-                FutSkin
-            </a>
-
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#templatemo_main_nav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="align-self-center collapse navbar-collapse flex-fill  d-lg-flex justify-content-lg-between" id="templatemo_main_nav">
-                <div class="flex-fill">
-                    <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/views/index.html">Inicio</a>
-                        </li>
-
-                        <!--
-                        <li class="nav-item">
-                            <a class="nav-link" href="/views/about.html">Sobre Nosotros</a>
-                        </li>
-                        -->
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="/views/shop.html">Tienda</a>
-                        </li>
-
-                        <!--
-                        <li class="nav-item">
-                            <a class="nav-link" href="/views/contact.html">Contacto</a>
-                        </li>
-                        -->
-                        
-                        <li class="nav-item">
-                            <a class="nav-link" href="/views/creacion-producto.html">Nuevo producto</a>
-                        </li>
-                    </ul>
-                </div>
-                
-                <div class="navbar align-self-center d-flex">
-
-                <!--
-                    <div class="d-lg-none flex-sm-fill mt-3 mb-4 col-7 col-sm-auto pr-3">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="inputMobileSearch" placeholder="Search ...">
-                            <div class="input-group-text">
-                                <i class="fa fa-fw fa-search"></i>
-                            </div>
-                        </div>
+                            <li class="nav-item">
+                                <a class="nav-link" href="shop.php">Tienda</a>
+                            </li>
+                            
+                            <li class="nav-item">
+                                <a class="nav-link" href="/views/creacion-producto.html">Nuevo producto</a>
+                            </li>
+    
+                            <li class="nav-item">
+                                <a class="nav-link" href="/views/admin.html"><?php echo "Hola, $sesion "?></a>
+                            </li>
+                            
+                            <li class="nav-item">
+                            <form action="logout.php" method="post">
+                              <button type="submit">Logout</button>
+                            </form>
+                            </li>
+                        </ul>
                     </div>
-                    <a class="nav-icon d-none d-lg-inline" href="#" data-bs-toggle="modal" data-bs-target="#templatemo_search">
-                        <i class="fa fa-fw fa-search text-dark mr-2"></i>
-                    </a>
-                -->
-
-                    <a class="nav-icon position-relative text-decoration-none" href="/views/carrito.html">
-                        <i class="fa fa-fw fa-cart-arrow-down text-dark mr-1"></i>
-                        <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">2</span>
-                    </a>
-                    <a class="nav-icon position-relative text-decoration-none" href="/views/login.html">
-                        <i class="fa fa-fw fa-user text-dark mr-3"></i>
-                        <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">1</span>
-                    </a>
+                    
+                    <div class="navbar align-self-center d-flex">
+                        <a class="nav-icon position-relative text-decoration-none" href="/views/carrito.html">
+                            <i class="fa fa-fw fa-cart-arrow-down text-dark mr-1"></i>
+                            <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">cart</span>
+                        </a>
+                        <a class="nav-icon position-relative text-decoration-none" href="/signin.php">
+                            <i class="fa fa-fw fa-user text-dark mr-3"></i>
+                            <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">login</span>
+                        </a>
+    
+                        <a class="nav-icon position-relative text-decoration-none" href="/views/user.html">
+                            <i class="fa fa-fw fa-user text-dark mr-3"></i>
+                            <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">user</span>
+                        </a>
+                    </div>
+    
                 </div>
-
+    
             </div>
-
-        </div>
-    </nav>
-    <!-- Close Header -->
+        </nav>
+        <!-- Close Header -->
 
 
     <!-- Modal -->
@@ -176,15 +141,9 @@ https://templatemo.com/tm-559-zay-shop
                         </a>
                         <ul class="collapse show list-unstyled pl-3">
                             
-                        <?php foreach ($data2 as $row) { 
-                            $categoria = $row['nombre'];
-                            $descripcion_categoria = $row['descripcion'];
-                        ?>
-
-                            <li><a class="text-decoration-none" href="#"><?php echo $categoria ?></a></li>
-
-                        
-                        <?php } ?>
+                        <?php foreach ($nombresCategorias as $nombreCategoria): ?>
+                            <li><?php echo $nombreCategoria; ?></li>
+                        <?php endforeach; ?>
 
                         </ul>
                     </li>
@@ -222,52 +181,7 @@ https://templatemo.com/tm-559-zay-shop
                 </div>
                 <div class="row">
 
-                <?php foreach ($data as $row) { 
-                  $precio = $row['precio_lista']; 
-                  $nombre = $row['nombre'];
-                  $descripcion = $row['descripcion'];
-                ?>
-                    <div class="col-md-4">
-                        <div class="card mb-4 product-wap rounded-0">
-                            <div class="card rounded-0">
-                                <img class="card-img rounded-0 img-fluid" src="/assets/img/camiseta-river-1.jpg">
-                                <div class="card-img-overlay rounded-0 product-overlay d-flex align-items-center justify-content-center">
-                                    <ul class="list-unstyled">
-                                        <li><a class="btn btn-success text-white" href="shop-single.html"><i class="far fa-heart"></i></a></li>
-                                        <li><a class="btn btn-success text-white mt-2" href="shop-single.html"><i class="far fa-eye"></i></a></li>
-                                        <li><a class="btn btn-success text-white mt-2" href="shop-single.html"><i class="fas fa-cart-plus"></i></a></li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="card-body">
-                                <a href="shop-single.html" class="h3 text-decoration-none"><?php echo $nombre ?></a>
-                                <ul class="w-100 list-unstyled d-flex justify-content-between mb-0">
-                                    <li>S/M/L/X/XL</li>
-                                    <li class="pt-2">
-                                        <span class="product-color-dot color-dot-red float-left rounded-circle ml-1"></span>
-                                        <span class="product-color-dot color-dot-blue float-left rounded-circle ml-1"></span>
-                                        <span class="product-color-dot color-dot-black float-left rounded-circle ml-1"></span>
-                                        <span class="product-color-dot color-dot-light float-left rounded-circle ml-1"></span>
-                                        <span class="product-color-dot color-dot-green float-left rounded-circle ml-1"></span>
-                                    </li>
-                                </ul>
-                                <ul class="list-unstyled d-flex justify-content-center mb-1">
-                                    <li>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-muted fa fa-star"></i>
-                                        <i class="text-muted fa fa-star"></i>
-                                    </li>
-                                </ul>
-                                <p class="text-center mb-0">$<?php echo $precio ?></p>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <?php } ?>
+                <?php echo $productosHTML ?>
                    
 
                    
@@ -421,13 +335,9 @@ https://templatemo.com/tm-559-zay-shop
                 <div class="col-md-4 pt-5">
                     <h2 class="h2 text-light border-bottom pb-3 border-light">Categorías</h2>
                     <ul class="list-unstyled text-light footer-link-list">
-                        <li><a class="text-decoration-none" href="#">River Plate</a></li>
-                        <li><a class="text-decoration-none" href="#">Boca Juniors</a></li>
-                        <li><a class="text-decoration-none" href="#">Selección Argentina</a></li>
-                        <li><a class="text-decoration-none" href="#">San Lorenzo</a></li>
-                        <li><a class="text-decoration-none" href="#">Estudiantes</a></li>
-                        <li><a class="text-decoration-none" href="#">Racing</a></li>
-                        <li><a class="text-decoration-none" href="#">Independiente</a></li>
+                        <?php foreach ($nombresCategorias as $nombreCategoria): ?>
+                            <li><?php echo $nombreCategoria; ?></li>
+                        <?php endforeach; ?>
                     </ul>
                 </div>
 

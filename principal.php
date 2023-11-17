@@ -2,21 +2,22 @@
   include "sesion.php";
   include "bd.php";
 
-  $con = conectarBDUsuario();
+  $conn = conectarBDUsuario();
 
-  $sql = "SELECT * FROM productos";
-  $prods = $con->prepare($sql);
-  $prods->execute();
-  $result = $prods->get_result();
-  $data = $result->fetch_all(MYSQLI_ASSOC);
+  $sesion = $_SESSION['email'];
 
-  $sql2 = "SELECT * FROM categorias";
-  $categorias = $con->prepare($sql2);
-  $categorias->execute();
-  $result = $categorias->get_result();
-  $data2 = $result->fetch_all(MYSQLI_ASSOC);
+ $usuario = consultaDatosUsuario($conn, $sesion); 
+ $nombre = $usuario['nombre'];
 
+  echo "User Email: $sesion // ";
+  echo "User Name: $nombre";
+
+  //pasar a funciones  
+  $categoriasHTML = traerCategoriasHTML();
+  $productosHTML = traerProductosHTML();
+  $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
 ?>  
+
     <!DOCTYPE html>
     <html lang="en">
     
@@ -35,7 +36,6 @@
         <!-- Load fonts style after rendering the layout styles -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
         <link rel="stylesheet" href="/assets/css/fontawesome.min.css">
-    
     </head>
     
     <body>
@@ -44,16 +44,6 @@
             <div class="container text-light">
                 <div class="w-100 d-flex justify-content-between">
                     <div>
-                        <i class="fa fa-envelope mx-2"></i>
-                        <a class="navbar-sm-brand text-light text-decoration-none" href="mailto:info@company.com">contacto@futskin.com</a>
-                        <i class="fa fa-phone mx-2"></i>
-                        <a class="navbar-sm-brand text-light text-decoration-none" href="tel:">4200 - 7777</a>
-                    </div>
-                    <div>
-                        <a class="text-light" href="https://facebook.com/" target="_blank" rel="sponsored"><i class="fab fa-facebook-f fa-sm fa-fw me-2"></i></a>
-                        <a class="text-light" href="https://www.instagram.com/" target="_blank"><i class="fab fa-instagram fa-sm fa-fw me-2"></i></a>
-                        <a class="text-light" href="https://twitter.com/" target="_blank"><i class="fab fa-twitter fa-sm fa-fw me-2"></i></a>
-                        <a class="text-light" href="https://www.linkedin.com/" target="_blank"><i class="fab fa-linkedin fa-sm fa-fw"></i></a>
                     </div>
                 </div>
             </div>
@@ -65,7 +55,7 @@
         <nav class="navbar navbar-expand-lg navbar-light shadow">
             <div class="container d-flex justify-content-between align-items-center">
     
-                <a class="navbar-brand text-success logo h1 align-self-center" href="/views/index.html">
+                <a class="navbar-brand text-success logo h1 align-self-center" href="/principal.php">
                     FutSkin
                 </a>
     
@@ -77,58 +67,35 @@
                     <div class="flex-fill">
                         <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
                             <li class="nav-item">
-                                <a class="nav-link" href="/views/index.html">Inicio</a>
+                                <a class="nav-link" href="principal.php">Inicio</a>
                             </li>
-    
-                            <!--
+
                             <li class="nav-item">
-                                <a class="nav-link" href="/views/about.html">Sobre Nosotros</a>
+                                <a class="nav-link" href="shop.php">Tienda</a>
                             </li>
-                            -->
-    
-                            <li class="nav-item">
-                                <a class="nav-link" href="/views/shop.html">Tienda</a>
-                            </li>
-    
-                            <!--
-                            <li class="nav-item">
-                                <a class="nav-link" href="/views/contact.html">Contacto</a>
-                            </li>
-                            -->
                             
                             <li class="nav-item">
                                 <a class="nav-link" href="/views/creacion-producto.html">Nuevo producto</a>
                             </li>
     
                             <li class="nav-item">
-                                <a class="nav-link" href="/views/admin.html">Admin</a>
+                                <a class="nav-link" href="/views/admin.html"><?php echo "Hola, $nombre "?></a>
                             </li>
-    
-    
+                            
+                            <li class="nav-item">
+                            <form action="logout.php" method="post">
+                              <button type="submit">Logout</button>
+                            </form>
+                            </li>
                         </ul>
                     </div>
                     
                     <div class="navbar align-self-center d-flex">
-    
-                    <!--
-                        <div class="d-lg-none flex-sm-fill mt-3 mb-4 col-7 col-sm-auto pr-3">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="inputMobileSearch" placeholder="Search ...">
-                                <div class="input-group-text">
-                                    <i class="fa fa-fw fa-search"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <a class="nav-icon d-none d-lg-inline" href="#" data-bs-toggle="modal" data-bs-target="#templatemo_search">
-                            <i class="fa fa-fw fa-search text-dark mr-2"></i>
-                        </a>
-                    -->
-    
                         <a class="nav-icon position-relative text-decoration-none" href="/views/carrito.html">
                             <i class="fa fa-fw fa-cart-arrow-down text-dark mr-1"></i>
                             <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">cart</span>
                         </a>
-                        <a class="nav-icon position-relative text-decoration-none" href="/views/login.html">
+                        <a class="nav-icon position-relative text-decoration-none" href="/signin.php">
                             <i class="fa fa-fw fa-user text-dark mr-3"></i>
                             <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">login</span>
                         </a>
@@ -145,6 +112,7 @@
         </nav>
         <!-- Close Header -->
     
+
         <!-- Modal -->
         <div class="modal fade bg-white" id="templatemo_search" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
@@ -162,8 +130,7 @@
             </div>
         </div>
     
-    
-    
+
         <!-- Start Banner Hero -->
         <div id="template-mo-zay-hero-carousel" class="carousel slide" data-bs-ride="carousel">
             <ol class="carousel-indicators">
@@ -190,44 +157,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="carousel-item">
-                    <div class="container">
-                        <div class="row p-5">
-                            <div class="mx-auto col-md-8 col-lg-6 order-lg-last">
-                                <img class="img-fluid" src="/assets/img/banner_img_02.jpg" alt="">
-                            </div>
-                            <div class="col-lg-6 mb-0 d-flex align-items-center">
-                                <div class="text-align-left">
-                                    <h1 class="h1">Proident occaecat</h1>
-                                    <h3 class="h2">Aliquip ex ea commodo consequat</h3>
-                                    <p>
-                                        You are permitted to use this Zay CSS template for your commercial websites. 
-                                        You are <strong>not permitted</strong> to re-distribute the template ZIP file in any kind of template collection websites.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="container">
-                        <div class="row p-5">
-                            <div class="mx-auto col-md-8 col-lg-6 order-lg-last">
-                                <img class="img-fluid" src="/assets/img/banner_img_03.jpg" alt="">
-                            </div>
-                            <div class="col-lg-6 mb-0 d-flex align-items-center">
-                                <div class="text-align-left">
-                                    <h1 class="h1">Repr in voluptate</h1>
-                                    <h3 class="h2">Ullamco laboris nisi ut </h3>
-                                    <p>
-                                        We bring you 100% free CSS templates for your websites. 
-                                        If you wish to support TemplateMo, please make a small contribution via PayPal or tell your friends about our website. Thank you.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
             <a class="carousel-control-prev text-decoration-none w-auto ps-3" href="#template-mo-zay-hero-carousel" role="button" data-bs-slide="prev">
                 <i class="fas fa-chevron-left"></i>
@@ -238,7 +167,7 @@
         </div>
         <!-- End Banner Hero -->
     
-    
+
         <!-- Start Categories of The Month -->
         <section class="container py-5">
             <div class="row text-center pt-3">
@@ -251,18 +180,7 @@
             </div>
             <div class="row">
 
-            <?php foreach ($data2 as $row) { 
-                            $categoria = $row['nombre'];
-                            $descripcion_categoria = $row['descripcion'];
-            ?>
-
-                <div class="col-12 col-md-4 p-5 mt-3">
-                    <a href="#"><img src="/assets/img/categoria-river.jpg" class="rounded-circle img-fluid border"></a>
-                    <h5 class="text-center mt-3 mb-3"><?php echo $categoria ?></h5>
-                    <p class="text-center"><a class="btn btn-success">Go Shop</a></p>
-                </div>
-
-            <?php } ?>
+            <?php echo $categoriasHTML ?>
 
             </div>
         </section>
@@ -274,52 +192,22 @@
             <div class="container py-5">
                 <div class="row text-center py-3">
                     <div class="col-lg-6 m-auto">
-                        <h1 class="h1">Las más buscadas</h1>
+                        <h1 class="h1">Los productos más buscados</h1>
                         <p>
-                            Estas son las camisetas más buscadas por los hinchas.
+                            Estas son los productos más buscados por los hinchas.
                         </p>
                     </div>
                 </div>
                 <div class="row">
 
-                <?php foreach ($data as $row) { 
-                  $precio = $row['precio_lista']; 
-                  $nombre = $row['nombre'];
-                  $descripcion = $row['descripcion'];
-                ?>
-
-                    <div class="col-12 col-md-4 mb-4">
-                        <div class="card h-100">
-                            <a href="/views/shop-single.html">
-                                <img src="/assets/img/camiseta-river-1.jpg" class="card-img-top" alt="...">
-                            </a>
-                            <div class="card-body">
-                                <ul class="list-unstyled d-flex justify-content-between">
-                                    <li>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-muted fa fa-star"></i>
-                                        <i class="text-muted fa fa-star"></i>
-                                    </li>
-                                    <li class="text-muted text-right">$<?php echo $precio ?></li>
-                                </ul>
-                                <a href="/views/shop-single.html" class="h2 text-decoration-none text-dark"><?php echo $nombre ?></a>
-                                <p class="card-text"><?php echo $descripcion ?></p>
-                                <p class="text-muted"></p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                <?php } ?>
-
+                <?php echo $productosHTML?>
 
                 </div>
             </div>
         </section>
         <!-- End Featured Product -->
     
-    
+
         <!-- Start Footer -->
         <footer class="bg-dark" id="tempaltemo_footer">
             <div class="container">
@@ -343,70 +231,29 @@
                         </ul>
                     </div>
 
-      
-
-                          
-
-    
                     <div class="col-md-4 pt-5">
                         <h2 class="h2 text-light border-bottom pb-3 border-light">Categorías</h2>
                         <ul class="list-unstyled text-light footer-link-list">
 
-                        <?php foreach ($data2 as $row) { 
-                            $categoria = $row['nombre'];
-                            $descripcion_categoria = $row['descripcion'];
-                        ?>
-                            <li><a class="text-decoration-none" href="#"><?php echo $categoria ?></a></li>
-
-
-                            <?php } ?>
-                            
+                        <?php foreach ($nombresCategorias as $categoria) { ?>
+                          <li><a class="text-decoration-none" href="#"><?php echo $categoria; ?></a></li>
+                        <?php } ?>
                         </ul>
                     </div>
     
                     <div class="col-md-4 pt-5">
                         <h2 class="h2 text-light border-bottom pb-3 border-light">Accesos rápidos</h2>
                         <ul class="list-unstyled text-light footer-link-list">
-                            <li><a class="text-decoration-none" href="#">Inicio</a></li>
-                            <li><a class="text-decoration-none" href="#">Sobre Nosotros</a></li>
-                            <li><a class="text-decoration-none" href="#">Tienda</a></li>
-                            <li><a class="text-decoration-none" href="#">Contacto</a></li>
+                            <li><a class="text-decoration-none" href="principal.php">Inicio</a></li>
+                            <li><a class="text-decoration-none" href="shop.php">Tienda</a></li>
                         </ul>
                     </div>
-    
                 </div>
     
                 <div class="row text-light mb-4">
                     <div class="col-12 mb-3">
                         <div class="w-100 my-3 border-top border-light"></div>
                     </div>
-                    <div class="col-auto me-auto">
-                        <ul class="list-inline text-left footer-icons">
-                            <li class="list-inline-item border border-light rounded-circle text-center">
-                                <a class="text-light text-decoration-none" target="_blank" href="http://facebook.com/"><i class="fab fa-facebook-f fa-lg fa-fw"></i></a>
-                            </li>
-                            <li class="list-inline-item border border-light rounded-circle text-center">
-                                <a class="text-light text-decoration-none" target="_blank" href="https://www.instagram.com/"><i class="fab fa-instagram fa-lg fa-fw"></i></a>
-                            </li>
-                            <li class="list-inline-item border border-light rounded-circle text-center">
-                                <a class="text-light text-decoration-none" target="_blank" href="https://twitter.com/"><i class="fab fa-twitter fa-lg fa-fw"></i></a>
-                            </li>
-                            <li class="list-inline-item border border-light rounded-circle text-center">
-                                <a class="text-light text-decoration-none" target="_blank" href="https://www.linkedin.com/"><i class="fab fa-linkedin fa-lg fa-fw"></i></a>
-                            </li>
-                        </ul>
-                    </div>
-    
-                    <!--
-                    <div class="col-auto">
-                        <label class="sr-only" for="subscribeEmail">Email address</label>
-                        <div class="input-group mb-2">
-                            <input type="text" class="form-control bg-dark border-light" id="subscribeEmail" placeholder="Email address">
-                            <div class="input-group-text btn-success text-light">Subscribe</div>
-                        </div>
-                    </div>
-                    -->
-                    
                 </div>
             </div>
     
@@ -421,10 +268,10 @@
                     </div>
                 </div>
             </div>
-    
         </footer>
         <!-- End Footer -->
     
+
         <!-- Start Script -->
         <script src="assets/js/jquery-1.11.0.min.js"></script>
         <script src="assets/js/jquery-migrate-1.2.1.min.js"></script>
@@ -435,13 +282,3 @@
     </body>
     
     </html>
-    PAGINA;
-
-  echo $pagina;
-}
-  
-main();
-
- 
-?>
- 
