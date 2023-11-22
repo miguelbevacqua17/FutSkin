@@ -15,6 +15,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 // Obtener detalles del producto por ID
 
 // Llamada a la función para obtener detalles del producto
+$carrito = $_GET['id'];
 $producto = obtenerDetalleProducto($productoID);
 
 // Verificar si se encontró el producto
@@ -24,6 +25,8 @@ if ($producto === NULL) {
     exit; // O redirige a una página de error
 }
 
+$precio = $producto['precio_lista'];
+$carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
 // Resto del código HTML para mostrar la información del producto
 ?>
 
@@ -181,7 +184,7 @@ https://templatemo.com/tm-559-zay-shop
             <div class="row">
                 <div class="col-lg-5 mt-5">
                     <div class="card mb-3">
-                        <img class="card-img img-fluid" src="/assets/img/<?php echo $producto['imagen']; ?>" alt="Card image cap" id="product-detail">
+                        <img class="card-img img-fluid" src="/uploads/<?php echo $producto['imagen']; ?>" id="product-detail">
                     </div>
                     <div class="row">
 
@@ -208,19 +211,24 @@ https://templatemo.com/tm-559-zay-shop
 
 
                             <form action="" method="GET">
-                                <input type="hidden" name="product-title" value="Activewear">
-                                
                                 <div class="row pb-3">
                                     <div class="col d-grid">
-                                        <button type="submit" class="btn btn-success btn-lg" name="submit" value="buy"> <a href="/views/finalizar-compra.html"> Comprar</a></button>
+                                        <button type="submit" class="btn btn-success btn-lg" name="submit" value="buy">
+                                            <a href="/views/finalizar-compra.html">Comprar</a>
+                                        </button>
                                     </div>
                                     <div class="col d-grid">
-                                        
-                                        <button type="submit" class="btn btn-success btn-lg"id="<?php echo $id?>">Agregar al Carrito</button>
-
+                                        <?php
+                                            // Supongamos que $carrito contiene el ID del producto
+                                            $carrito; // Debes implementar tu propia lógica para obtener el ID del producto
+                                        ?>
+                                        <button type="submit" class="btn btn-success btn-lg" id="<?php echo $carritoFinal; ?>">
+                                            Agregar al Carrito
+                                        </button>
                                     </div>
                                 </div>
                             </form>
+
 
                         </div>
                     </div>

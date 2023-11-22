@@ -258,7 +258,7 @@ function traerProductosHTML($tipo = "default") {
           $html .= '<a href="shop-single.php?id=' . $id . '" class="text-decoration-none">'; // Agregado
           $html .= '<div class="card mb-4 product-wap rounded-0">';
           $html .= '<div class="card rounded-0">';
-          $html .= '<img class="card-img rounded-0 img-fluid" src="/assets/img/' . $imagen . '">';
+          $html .= '<img class="card-img rounded-0 img-fluid" src="/uploads/' . $imagen . '">';
           $html .= '<div class="card-img-overlay rounded-0 product-overlay d-flex align-items-center justify-content-center">';
           $html .= '</div>';
           $html .= '<div class="card-body">';
@@ -285,7 +285,7 @@ function traerProductosHTML($tipo = "default") {
           $html .= '<div class="col-12 col-md-4 mb-4">';
           $html .= '<div class="card h-100">';
           $html .= '<a href="shop-single.php?id=' . $id . '" class="text-decoration-none">'; // Agregado
-          $html .= '<img src="/assets/img/' . $imagen . '" class="card-img-top" alt="...">';
+          $html .= '<img src="/uploads/' . $imagen . '" class="card-img-top" alt="...">';
           $html .= '</a>';
           $html .= '<div class="card-body">';
           $html .= '<ul class="list-unstyled d-flex justify-content-between">';
@@ -465,7 +465,6 @@ function eliminarProductoDelCarrito($usuarioID, $productoID) {
 
 
 
-
 ##########
 
 
@@ -499,7 +498,7 @@ function insertarNuevoProducto($categoriaID, $nombre, $imagen, $descripcion, $pr
 
 
 ##########
-function agregarProductoAlCarrito($usuarioID, $productoID) {
+function agregarProductoAlCarrito($usuarioID, $productoID, $precio) {
     $conn = conectarBDUsuario(); // Ajusta según tu función de conexión
 
     if ($conn === NULL) {
@@ -508,7 +507,7 @@ function agregarProductoAlCarrito($usuarioID, $productoID) {
 
     // Puedes realizar validaciones adicionales aquí antes de ejecutar la consulta
 
-    $sql = "INSERT INTO carrito (id_usuario, id_producto, cantidad) VALUES (?, ?, 1)";
+    $sql = "INSERT INTO pedidos (cliente_fk, producto_fk, precio_venta, cantidad_prod) VALUES (?, ?, ?, 1)";
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
@@ -516,12 +515,42 @@ function agregarProductoAlCarrito($usuarioID, $productoID) {
         return false;
     }
 
-    $stmt->bind_param("ii", $usuarioID, $productoID);
+    $stmt->bind_param("iii", $usuarioID, $productoID, $precio);
     $resultado = $stmt->execute();
 
     cerrarBDConexion($conn);
 
     return $resultado;
 }
-?>
 
+
+
+
+#####
+
+#traer solo traerSoloCategorias
+
+function obtenerCategorias() {
+    $conn = conectarBDUsuario();
+
+    if ($conn === NULL) {
+        return array(); // Retorna un array vacío si hay un problema con la conexión
+    }
+
+    $sql = "SELECT id, nombre FROM categorias";
+    $result = $conn->query($sql);
+
+    $categorias = array();
+
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $categorias[$row['id']] = $row['nombre'];
+        }
+    }
+
+    cerrarBDConexion($conn);
+
+    return $categorias;
+}
+
+?>

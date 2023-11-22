@@ -1,42 +1,84 @@
 <?php
-include "bd.php";     //https://www.w3schools.com/php/php_includes.asp
+include "bd.php";
 include "sesion.php";
 
-function main(){
-  $sesionUsuario = controlarSesion();
 
-  //variables para el contenido de los input
-  $email="";
-  $apellido="";
-  $nombre="";
-  $password="";
-  //estado inicial del boton enviar 
-  //$estadoBotonEnviar="disabled";
-  $estadoBotonEnviar="";
+    $sesionUsuario = controlarSesion();
 
-  if ($sesionUsuario!=NULL){
+    // Variables para el contenido de los input
+    $email = "no data";
+    $apellido = "no data";
+    $nombre = "no data";
+    $password = "no data";
 
-    // abrir conexión a base de datos, en este caso 'bd_usuario'
-    $conn = conectarBDUsuario();
-    // Ejecutar consulta
-    $resultado = consultaDatosUsuario($conn,$sesionUsuario);
+    if ($sesionUsuario != NULL) {
+        // Abrir conexión a base de datos, en este caso 'bd_usuario'
+        $conn = conectarBDUsuario();
+        // Ejecutar consulta
+        $resultado = consultaDatosUsuario($conn, $sesionUsuario);
 
-    // cerrar conexión '$conn' de base de datos
-    cerrarBDConexion($conn);
+        // Cerrar conexión '$conn' de base de datos
+        cerrarBDConexion($conn);
 
-    if($resultado!=NULL ){  
-        $email=$resultado['email'];
-        $apellido=$resultado['apellido'];
-        $nombre=$resultado['nombre'];
-        $password=$resultado['contrasena'];
+        if ($resultado != NULL) {
+            // Obtener datos del usuario
+            $email = $resultado['email'];
+            $apellido = $resultado['apellido'];
+            $nombre = $resultado['nombre'];
+            $password = $resultado['contrasena'];
+        }
     }
-    
-  }
+
+    // Verificar si el formulario ha sido enviado
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Recoger los datos del formulario
+        $nuevoEmail = $_POST["nuevo_email"];
+        $nuevoApellido = $_POST["nuevo_apellido"];
+        $nuevoNombre = $_POST["nuevo_nombre"];
+        $nuevoPassword = $_POST["nuevo_password"];
+
+        // Abrir conexión a la base de datos
+        $conn = conectarBDUsuario();
+
+        // Llamar a la función para actualizar los datos del usuario
+        $actualizado = actualizarDatosUsuario($conn, $sesionUsuario, $nuevoEmail, $nuevoApellido, $nuevoNombre, $nuevoPassword);
+
+        // Cerrar conexión '$conn' de base de datos
+        cerrarBDConexion($conn);
+
+        if ($actualizado) {
+            echo "Datos actualizados correctamente.";
+            // Puedes redirigir al usuario a otra página o mostrar un mensaje de éxito.
+        } else {
+            echo "Error al actualizar los datos.";
+            // Puedes mostrar un mensaje de error o realizar alguna otra acción.
+        }
+    }
+
+// Función para actualizar los datos del usuario en la base de datos
+function actualizarDatosUsuario($conn, $sesionUsuario, $nuevoEmail, $nuevoApellido, $nuevoNombre, $nuevoPassword){
+    // Aquí debes implementar la lógica para realizar el UPDATE en la base de datos.
+    // Debes tener una tabla en la base de datos donde almacenes los datos del usuario.
+
+    // Ejemplo de consulta (asegúrate de adaptarla a tu esquema de base de datos):
+    $sql = "UPDATE clientes SET email=?, apellido=?, nombre=?, contrasena=? WHERE id=?";
+    $stmt = $conn->prepare($sql);
+
+    if (!$stmt) {
+        return false;
+    }
+
+    // Bind the parameters
+    $stmt->bind_param("ssssi", $nuevoEmail, $nuevoApellido, $nuevoNombre, $nuevoPassword, $sesionUsuario);
+
+    // Execute the statement
+    $resultado = $stmt->execute();
+
+    return $resultado;
 }
 
-main();
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -174,7 +216,7 @@ main();
                 <div class="row">
                     <div class="form-group col-md-6 mb-3">
                         <label for="inputname">Nombre de usuario</label>
-                        <input type="text" class="form-control mt-1" id="nombre" name="nombre" placeholder="Nombre de usuario" required value="<?php echo $nombre?>">
+                        <input type="text" class="form-control mt-1" id="nombre" name="nombre" placeholder="Nombre" required value="<?php echo $nombre?>">
                     </div>
 
                     <div class="form-group col-md-6 mb-3">
@@ -189,7 +231,7 @@ main();
                     </div>
                 
                     <div class="form-group col-md-6 mb-3">
-                        <label for="inputemail">Contraseña</label>
+                        <label for="inputname">Contraseña</label>
                         <input type="password" class="form-control mt-1" id="precio" name="precio" placeholder="Contraseña">
                     </div>
                     
@@ -199,8 +241,8 @@ main();
                 </div>
                 
                 <div class="form-group col-md-6 mb-3">
-                    <label for="inputemail">Altura de la calle</label>
-                    <input type="email" class="form-control mt-1" id="precio" name="precio" placeholder="Altura de la calle">
+                    <label for="inputname">Altura de la calle</label>
+                    <input type="text" class="form-control mt-1" id="precio" name="precio" placeholder="Altura de la calle">
                 </div>
 
                 <div class="form-group col-md-6 mb-3">
@@ -209,14 +251,10 @@ main();
                 </div>
                 
                 <div class="form-group col-md-6 mb-3">
-                    <label for="inputemail">Barrio / Localidad</label>
-                    <input type="email" class="form-control mt-1" id="precio" name="precio" placeholder="Barrio / Localidad">
+                    <label for="inputname">Barrio / Localidad</label>
+                    <input type="text" class="form-control mt-1" id="precio" name="precio" placeholder="Barrio / Localidad">
                 </div>
 
-                <div class="mb-3">
-                    <label for="">Imagen de perfil</label>
-                    <input type="file" name="image" class="usuario" id="image">
-                </div>
 
                 
                 <div class="row">
