@@ -19,5 +19,3 @@ if (isset($_GET['producto_id']) && is_numeric($_GET['producto_id'])) {
     echo "ID de producto no válida.";
 }
 ?>
-
-?>

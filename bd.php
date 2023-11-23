@@ -200,15 +200,48 @@ function consultaDatosUsuario($conn, $email) {
             $categoria = $row['nombre'];
             $descripcion_categoria = $row['descripcion'];
             $imagen = $row['imagen'];
+            $id = $row['id'];
     
             $html .= '<div class="col-12 col-md-4 p-5 mt-3">';
-            $html .= '<a href="#"><img src="/assets/img/' . $imagen . '" class="rounded-circle img-fluid border"></a>';
+            $html .= '<a href="shop.php?id=' . $id . '"><img src="/uploads/' . $imagen . '" justify-content:center;width=200px;height=200px></a>';
             $html .= '<h5 class="text-center mt-3 mb-3">' . $categoria . '</h5>';
-            $html .= '<p class="text-center"><a class="btn btn-success">ver</a></p>';
             $html .= '</div>';
         }
     
         return $html;
+    }
+
+
+    function categorias() {
+        // Conectar a la base de datos
+        $conn = conectarBDUsuario();
+    
+        // Verificar la conexión
+        if ($conn === NULL) {
+            return "";
+        }
+    
+        // Consultar categorías
+        $sql = "SELECT * FROM categorias";
+        $categorias = $conn->prepare($sql);
+    
+        if (!$categorias) {
+            return "";
+        }
+    
+        $categorias->execute();
+        $result = $categorias->get_result();
+    
+        if (!$result) {
+            return "";
+        }
+    
+        $data = $result->fetch_all(MYSQLI_ASSOC);
+    
+        // Cerrar conexión a la base de datos
+        cerrarBDConexion($conn);
+    
+        return $data;
     }
 
 
@@ -376,6 +409,36 @@ function obtenerDetalleProducto($productoID) {
     return $producto;
 }
 
+
+function obtenerDetalleCategoria($categoriaID) {
+    $conn = conectarBDUsuario();
+
+    if ($conn === NULL) {
+        return NULL;
+    }
+
+    $sql = "SELECT * FROM categorias WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+
+    if (!$stmt) {
+        return NULL;
+    }
+
+    $stmt->bind_param("i", $categoriaID);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        cerrarBDConexion($conn);
+        return NULL;
+    }
+
+    $categoria = $result->fetch_assoc();
+    cerrarBDConexion($conn);
+
+    return $categoria;
+}
 
 
 #####################
@@ -551,6 +614,46 @@ function obtenerCategorias() {
     cerrarBDConexion($conn);
 
     return $categorias;
+}
+
+
+
+
+#######
+
+
+// Función para generar HTML de ventas
+function traerVentas() {
+    // Conectar a la base de datos
+    $conn = conectarBDUsuario();
+
+    // Verificar la conexión
+    if ($conn === NULL) {
+        return "";
+    }
+
+    // Consultar productos
+    $sql = "SELECT * FROM pedidos";
+    $prods = $conn->prepare($sql);
+
+    if (!$prods) {
+        return "";
+    }
+
+    $prods->execute();
+    $result = $prods->get_result();
+
+    if (!$result) {
+        return "";
+    }
+
+    $data = $result->fetch_all(MYSQLI_ASSOC);
+
+    // Cerrar conexión a la base de datos
+    cerrarBDConexion($conn);
+
+    // Devolver los datos obtenidos
+    return $data;
 }
 
 ?>

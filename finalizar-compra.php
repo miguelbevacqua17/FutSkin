@@ -1,38 +1,3 @@
-<?php
-  include "sesion.php";
-  include "bd.php";
-
-  $conn = conectarBDUsuario();
-  
-  // Verificar si la sesión está iniciada y la clave 'email' está presente
-  if (isset($_SESSION['email'])) {
-      $sesion = $_SESSION['email'];
-  
-      // Verificar si la consulta de datos del usuario es exitosa
-      $usuario = consultaDatosUsuario($conn, $sesion);
-      
-      if ($usuario !== null) {
-          $nombre = $usuario['nombre'];
-          $rol = $usuario['rol'];
-  
-          echo "User Email: $sesion // ";
-          echo "User Name: $nombre // ";
-          echo "User Role: $rol";
-
-          // Resto del código que usa $nombre y $rol
-      } else {
-          echo "Error al obtener datos del usuario.";
-      }
-  } else {
-      echo "No hay sesión iniciada.";
-  }
-
-
-  $categorias = obtenerCategorias();
-
-?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -187,9 +152,9 @@ https://templatemo.com/tm-559-zay-shop
     <!-- Start Content Page -->
     <div class="container-fluid bg-light py-5">
         <div class="col-md-6 m-auto text-center">
-            <h1 class="h1">Crear nuevo producto</h1>
+            <h1 class="h1">Finalizar la compra</h1>
             <p>
-                Vista para la creación de un nuevo producto
+                Ingresá tus datos de envio para confirmar la compra
             </p>
         </div>
     </div>
@@ -197,68 +162,50 @@ https://templatemo.com/tm-559-zay-shop
 
     <!-- Start Contact -->
     <div class="container py-5">
-    <div class="container">
-    <form action="upload.php" method="post" enctype="multipart/form-data">
-    
+        <div class="row py-5">
+            <form class="col-md-9 m-auto" method="post" role="form">
+                <div class="row">
+                    <div class="form-group col-md-6 mb-3">
+                        <label for="inputname">Dirección de entrega</label>
+                        <input type="text" class="form-control mt-1" id="name" name="name" placeholder="Dirección de entrega">
+                    </div>
+                    
+                    <div class="form-group col-md-6 mb-3">
+                        <label for="inputemail">Altura de la calle</label>
+                        <input type="email" class="form-control mt-1" id="precio" name="precio" placeholder="Altura de la calle">
+                    </div>
 
-        <!-- Otros campos del formulario -->
-        <div class="row">
-            <div class="form-group col-md-6 mb-3">
-                <label for="nombre">Nombre del producto</label>
-                <input type="text" class="form-control mt-1" id="nombre" name="nombre" placeholder="Nombre">
-            </div>
+                    <div class="form-group col-md-6 mb-3">
+                        <label for="inputname">Piso / departamento</label>
+                        <input type="text" class="form-control mt-1" id="name" name="name" placeholder="Piso / departamento">
+                    </div>
+                    
+                    <div class="form-group col-md-6 mb-3">
+                        <label for="inputemail">Barrio / Localidad</label>
+                        <input type="email" class="form-control mt-1" id="precio" name="precio" placeholder="Barrio / Localidad">
+                    </div>
 
-            <!-- Otros campos del formulario -->
+                    <div class="mb-3">
+                        <label for="inputsubject">Aclaraciones</label>
+                        <input type="text" class="form-control mt-1" id="descripcion" name="descripcion" placeholder="Aclaraciones">
+                    </div>
 
-            <div class="form-group col-md-6 mb-3">
-                <label for="descuento">Precio</label>
-                <input type="text" class="form-control mt-1" id="precio" name="precio" placeholder="Precio">
-            </div>
+                    <div class="form-group col-md-6 mb-3">
+                        <label for="inputemail">Total a pagar: $$$$</label>
+                    </div>
 
+                    
+                </div>
+                
+                
 
-            <div class="form-group col-md-6 mb-3">
-                <label for="categoria">Categoría</label>
-                <select class="form-control mt-1" id="categoria" name="categoria" required>
-                    <option value="" disabled selected>Seleccione una categoría</option>
-                    <?php
-                    // Itera sobre las categorías y crea opciones
-                    foreach ($categorias as $id => $nombre) {
-                        echo "<option value=\"$id\">$nombre</option>";
-                    }
-                    ?>
-                </select>
-            </div>
-
-            <div class="form-group col-md-3 mb-3">
-                <label for="descuento">Descuento</label>
-                <input type="text" class="form-control mt-1" id="descuento" name="descuento" placeholder="Descuento">
-            </div>
-
-            <div class="form-group col-md-3 mb-3">
-                <label for="descuento">Stock</label>
-                <input type="text" class="form-control mt-1" id="stock" name="stock" placeholder="Stock">
-            </div>
-            
+                <div class="row">
+                    <div class="col text-end mt-2">
+                        <button type="submit" class="btn btn-success btn-lg px-3">Confirmar la compra</button>
+                    </div>
+                </div>
+            </form>
         </div>
-        <div class="mb-3">
-            <label for="descripcion">Descripción</label>
-            <input type="text" class="form-control mt-1" id="descripcion" name="descripcion" placeholder="Descripcion">
-        </div>
-
-        <div class="input-group mb-3">
-            <input type="file" class="form-control" name="fileToUpload" id="inputGroupFile01" placeholder="Seleccionar Archivo ...">
-        </div>
-
-        <!-- Otros campos del formulario -->
-
-        <div class="row">
-            <div class="col text-end mt-2">
-                <button type="submit" name="submit" class="btn btn-success btn-lg px-3">Enviar</button>
-            </div>
-        </div>
-    </form>
-</div>
-
     </div>
     <!-- End Contact -->
 
@@ -325,12 +272,6 @@ https://templatemo.com/tm-559-zay-shop
             </div>
         </footer>
     <!-- FIN FOOTER -->
-
-    <script type="text/javascript">
-        function redirigir(url){
-          window.location.href = url;
-        }  
-      </script>
 
     <!-- Start Script -->
     <script src="/assets/js/jquery-1.11.0.min.js"></script>

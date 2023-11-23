@@ -27,35 +27,65 @@
       echo "No hay sesión iniciada.";
   }
 
-  $venta = traerVentas();
+  $categoriasHTML = traerCategoriasHTML();
+  $productosHTML = traerProductosHTML("detalle");
+  $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
+  $categorias = categorias();
+
+  $IdCat = $categoria['id'];
+
+
+  // Verificar si se proporciona un ID válido en la URL
+if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+    $categoriaID = $_GET['id'];
+    // Ahora, $productoID contiene el ID del producto que se debe mostrar
+} else {
+    // Manejar el caso en que no se proporciona un ID válido
+    echo "ID de producto no válido";
+    exit; // O redirige a una página de error
+}
+
+
+// Obtener detalles de la categoria por ID
+
+// Llamada a la función para obtener detalles de la categoria
+$categoriaID = $_GET['id'];
+$equipo = obtenerDetalleCategoria($categoriaID);
+
+// Verificar si se encontró el producto
+if ($equipo === NULL) {
+    // Manejar el caso en que no se encontró el producto
+    echo "Categoria no encontrada";
+    exit; // O redirige a una página de error
+}
+
+$nombre = $equipo['nombre'];
+
 ?>  
+
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <!-- Required meta tags -->
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Majestic Admin</title>
-  
-  <link rel="apple-touch-icon" href="/assets/img/apple-icon.png">
-  <link rel="shortcut icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <title>FutSkin</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/assets/css/templatemo.css">
-  <link rel="stylesheet" href="/assets/css/custom.css">
+    <link rel="apple-touch-icon" href="/assets/img/apple-icon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/img/favicon.ico">
 
-  <!-- Load fonts style after rendering the layout styles -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
-  <link rel="stylesheet" href="/assets/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/templatemo.css">
+    <link rel="stylesheet" href="/assets/css/custom.css">
 
-  <link rel="stylesheet" href="/assets/css/admin-style.css">
-  <!-- endinject -->
+    <!-- Load fonts style after rendering the layout styles -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
+    <link rel="stylesheet" href="/assets/css/fontawesome.min.css">
 </head>
+
 <body>
-
-
+    
         <!-- NAV -->
         <nav class="navbar navbar-expand-lg bg-dark navbar-light d-none d-lg-block" id="templatemo_nav_top">
             <div class="container text-light">
@@ -113,9 +143,9 @@
 
                             <?php } else { ?>
 
-                            <?php foreach ($nombresCategorias as $categoria) { ?>
+                            <?php foreach ($categorias as $categoria) { ?>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="#"><?php echo $categoria; ?></a>
+                                    <a class="nav-link" href="/categorias.php?id=<?php echo $IdCat ?>"><?php echo $nombre; ?></a>
                                 </li>
                             <?php } } ?>
 
@@ -155,139 +185,131 @@
             </div>
         </nav>
         <!-- FIN HEADER -->
-    
-      <!-- partial -->
-      <div class="main-panel">
-        <div class="content-wrapper">
-          
-          <div class="row">
-            <div class="col-md-12 grid-margin">
-              <div class="d-flex justify-content-between flex-wrap">
-                <div class="d-flex align-items-end flex-wrap">
-                  <div class="me-md-3 me-xl-5">
-                    <h2>Panel de Administrador</h2>
-                    <p class="mb-md-0">Panel de admin</p>
-                  </div>
-  
-                </div>
-                <!--
-                <div class="d-flex justify-content-between align-items-end flex-wrap">
-                  <button type="button" class="btn btn-light bg-white btn-icon me-3 d-none d-md-block ">
-                    <i class="mdi mdi-download text-muted"></i>
-                  </button>
-                  <button type="button" class="btn btn-light bg-white btn-icon me-3 mt-2 mt-xl-0">
-                    <i class="mdi mdi-clock-outline text-muted"></i>
-                  </button>
-                  <button type="button" class="btn btn-light bg-white btn-icon me-3 mt-2 mt-xl-0">
-                    <i class="mdi mdi-plus text-muted"></i>
-                  </button>
-                  <button class="btn btn-primary mt-2 mt-xl-0">Generate report</button>
-                </div>
-                -->
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12 grid-margin stretch-card">
-              <div class="card">
-                <div class="card-body dashboard-tabs p-0">
-                  
-                  <div class="tab-content py-0 px-0">
-                    <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
-                      <div class="d-flex flex-wrap justify-content-xl-between">
-                        <div class="d-none d-xl-flex border-md-right flex-grow-1 align-items-center justify-content-center p-3 item">
-                          <i class="mdi mdi-calendar-heart icon-lg me-3 text-primary"></i>
-                          <div class="d-flex flex-column justify-content-around">
-                            <small class="mb-1 text-muted">Inicio de actividad</small>
-                            <div class="dropdown">
-                                <h5 class="mb-0 d-inline-block">26 Oct 2023</h5>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="d-flex border-md-right flex-grow-1 align-items-center justify-content-center p-3 item">
-                          <div class="d-flex flex-column justify-content-around">
-                            <small class="mb-1 text-muted">Total compras</small>
-                            <h5 class="me-2 mb-0">1</h5>
-                          </div>
-                        </div>
-                        <div class="d-flex border-md-right flex-grow-1 align-items-center justify-content-center p-3 item">
-                          <i class="mdi mdi-eye me-3 icon-lg text-success"></i>
-                          <div class="d-flex flex-column justify-content-around">
-                            <small class="mb-1 text-muted">Ganancias</small>
-                            <h5 class="me-2 mb-0">$35.000</h5>
-                          </div>
-                        </div>
-                        
-                      </div>
-                    </div>
-                    
-                    
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-7 grid-margin stretch-card">
-              
-            </div>
-            <div class="col-md-5 grid-margin stretch-card">
-              
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12 stretch-card">
-              <div class="card">
-                <div class="card-body">
-                  <p class="card-title">ÚLTIMAS VENTAS</p>
-                  <div class="table-responsive">
-                    <table id="recent-purchases-listing" class="table">
-                      <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Mail usuario</th>
-                            <th>Fecha</th>
-                            <th>Monto</th>
-                            <th>Estado</th>
-                            <th>Editar</th>
-                            <th>Cancelar compra</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                      <?php
-                        foreach ($venta as $ventas) { 
-                          $id = $ventas['id']; 
-                          $cliente = $ventas['cliente_fk'];
-                          $producto = $ventas['producto_fk'];
-                          $precio = $ventas['precio_venta'];
-                          $cantidad = $ventas['cantidad_prod'];
-                          $estado = $ventas['estado'];
-                        ?>
 
-                          <tr>
-                            <td><?php echo $id ?></td>
-                            <td><?php echo $cliente ?></td>
-                            <td><?php echo $producto ?></td>
-                            <td>$<?php echo $precio ?></td>
-                            <td><?php echo $cantidad ?></td>
-                            <td><?php echo $estado ?></td>
-                          </tr>
 
-                      <?php  } ?>
-                      
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
+    <!-- Modal -->
+    <div class="modal fade bg-white" id="templatemo_search" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="w-100 pt-1 mb-5 text-right">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-          </div>
+            <form action="" method="get" class="modal-content modal-body border-0 p-0">
+                <div class="input-group mb-2">
+                    <input type="text" class="form-control" id="inputModalSearch" name="q" placeholder="Search ...">
+                    <button type="submit" class="input-group-text bg-success text-light">
+                        <i class="fa fa-fw fa-search text-white"></i>
+                    </button>
+                </div>
+            </form>
         </div>
-        <!-- content-wrapper ends -->
+    </div>
 
 
-      <!-- FOOTER -->
-        <footer class="bg-dark" id="tempaltemo_footer">
+
+    <!-- Start Content -->
+    <div class="container py-5">
+        <div class="row">
+
+            <div class="col-lg-3">
+                <h1 class="h2 pb-4">Categorías</h1>
+                <ul class="list-unstyled templatemo-accordion">
+                    <li class="pb-3">
+                        <a class="collapsed d-flex justify-content-between h3 text-decoration-none" href="#">
+                            Equipos
+                            <i class="fa fa-fw fa-chevron-circle-down mt-1"></i>
+                        </a>
+                        
+                            
+                        <?php foreach ($categorias as $categoria): ?>
+                            <ul class="collapse show list-unstyled pl-3" href="/shop.php?id=<?php echo $id ?>">
+                                <li><a href="/shop.php?id=<?php echo $id ?>"><?php echo $nombre; ?></a></li>
+                            </ul>
+                        <?php endforeach; ?>
+
+
+                    </li>
+                    
+                </ul>
+            </div>
+
+            <div class="col-lg-9">
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-inline shop-top-menu pb-3 pt-1">
+                            <li class="list-inline-item">
+                                <a class="h3 text-dark text-decoration-none mr-3" href="#"><?php echo $nombre; ?></a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6 pb-4">
+
+                    </div>
+                </div>
+                <div class="row">
+
+                <?php echo $productosHTML ?>
+                   
+
+                   
+                </div>
+                <div div="row">
+                    <ul class="pagination pagination-lg justify-content-end">
+                        <li class="page-item disabled">
+                            <a class="page-link active rounded-0 mr-3 shadow-sm border-top-0 border-left-0" href="#" tabindex="-1">1</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link rounded-0 mr-3 shadow-sm border-top-0 border-left-0 text-dark" href="#">2</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link rounded-0 shadow-sm border-top-0 border-left-0 text-dark" href="#">3</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- End Content -->
+
+    <!-- Start Brands -->
+    <section class="bg-light py-5">
+        <div class="container my-4">
+            <div class="row text-center py-3">
+                <div class="col-lg-6 m-auto">
+                    <h1 class="h1">Nuestras marcas</h1>
+                    <p>
+                        Trabajamos con las mejores marcas. 
+                    </p>
+                </div>
+                <div class="col-lg-9 m-auto tempaltemo-carousel">
+                    <div class="row d-flex flex-row">
+                        <!--Controls-->
+                        <div class="col-1 align-self-center">
+                            <a class="h1" href="#multi-item-example" role="button" data-bs-slide="prev">
+                                <i class="text-light fas fa-chevron-left"></i>
+                            </a>
+                        </div>
+                        <!--End Controls-->
+
+
+
+                        <!--Controls-->
+                        <div class="col-1 align-self-center">
+                            <a class="h1" href="#multi-item-example" role="button" data-bs-slide="next">
+                                <i class="text-light fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+                        <!--End Controls-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--End Brands-->
+
+
+<!-- FOOTER -->
+<footer class="bg-dark" id="tempaltemo_footer">
             <div class="container">
                 <div class="row">
     
@@ -313,9 +335,11 @@
                         <h2 class="h2 text-light border-bottom pb-3 border-light">Categorías</h2>
                         <ul class="list-unstyled text-light footer-link-list">
 
-                        <?php foreach ($nombresCategorias as $categoria) { ?>
-                          <li><a class="text-decoration-none" href="#"><?php echo $categoria; ?></a></li>
+                        <?php foreach ($categorias as $categoria) { ?>
+                          <li><a class="text-decoration-none" href="/shop.php?id=<?php echo $id ?>"><?php echo $nombre; ?></a></li>
                         <?php } ?>
+
+                        
                         </ul>
                     </div>
     
@@ -349,17 +373,13 @@
         </footer>
     <!-- FIN FOOTER -->
 
-
-
-      </div>
-      <!-- main-panel ends -->
-    </div>
-    <!-- page-body-wrapper ends -->
-  </div>
-  <!-- container-scroller -->
-
-
-
+    <!-- Start Script -->
+    <script src="/assets/js/jquery-1.11.0.min.js"></script>
+    <script src="/assets/js/jquery-migrate-1.2.1.min.js"></script>
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/templatemo.js"></script>
+    <script src="/assets/js/custom.js"></script>
+    <!-- End Script -->
 </body>
 
 </html>

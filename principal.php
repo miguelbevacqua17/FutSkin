@@ -3,14 +3,29 @@
   include "bd.php";
 
   $conn = conectarBDUsuario();
+  
+  // Verificar si la sesión está iniciada y la clave 'email' está presente
+  if (isset($_SESSION['email'])) {
+      $sesion = $_SESSION['email'];
+  
+      // Verificar si la consulta de datos del usuario es exitosa
+      $usuario = consultaDatosUsuario($conn, $sesion);
+      
+      if ($usuario !== null) {
+          $nombre = $usuario['nombre'];
+          $rol = $usuario['rol'];
+  
+          echo "User Email: $sesion // ";
+          echo "User Name: $nombre // ";
+          echo "User Role: $rol";
 
-  $sesion = $_SESSION['email'];
-
- $usuario = consultaDatosUsuario($conn, $sesion); 
- $nombre = $usuario['nombre'];
-
-  echo "User Email: $sesion // ";
-  echo "User Name: $nombre";
+          // Resto del código que usa $nombre y $rol
+      } else {
+          echo "Error al obtener datos del usuario.";
+      }
+  } else {
+      echo "No hay sesión iniciada.";
+  }
 
   //pasar a funciones  
   $categoriasHTML = traerCategoriasHTML();
@@ -18,14 +33,14 @@
   $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
 ?>  
 
-    <!DOCTYPE html>
-    <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
     
     <head>
         <title>FutSkin</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-    
+
         <link rel="apple-touch-icon" href="/assets/img/apple-icon.png">
         <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
     
@@ -39,7 +54,8 @@
     </head>
     
     <body>
-        <!-- Start Top Nav -->
+
+        <!-- NAV -->
         <nav class="navbar navbar-expand-lg bg-dark navbar-light d-none d-lg-block" id="templatemo_nav_top">
             <div class="container text-light">
                 <div class="w-100 d-flex justify-content-between">
@@ -48,10 +64,10 @@
                 </div>
             </div>
         </nav>
-        <!-- Close Top Nav -->
+        <!-- FIN NAV -->
     
     
-        <!-- Header -->
+        <!-- HEADER -->
         <nav class="navbar navbar-expand-lg navbar-light shadow">
             <div class="container d-flex justify-content-between align-items-center">
     
@@ -72,103 +88,97 @@
 
                             <li class="nav-item">
                                 <a class="nav-link" href="shop.php">Tienda</a>
-                            </li>
-                            
-                            <li class="nav-item">
-                                <a class="nav-link" href="/views/creacion-producto.html">Nuevo producto</a>
-                            </li>
-    
-                            <li class="nav-item">
-                                <a class="nav-link" href="/views/admin.html"><?php echo "Hola, $nombre "?></a>
-                            </li>
-                            
-                            <li class="nav-item">
-                            <form action="logout.php" method="post">
-                              <button type="submit">Logout</button>
-                            </form>
-                            </li>
+                            </li>                            
+
+                            <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/carrito.php">Carrito</a>
+                                </li>
+
+                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>
+                                
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/crecion-producto.php">Nuevo producto</a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/admin.php">Vista Administrador</a>
+                                </li>
+
+                            <?php } else { ?>
+
+                            <?php foreach ($nombresCategorias as $categoria) { ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><?php echo $categoria; ?></a>
+                                </li>
+                            <?php } } ?>
+
                         </ul>
+
+
                     </div>
                     
                     <div class="navbar align-self-center d-flex">
-                        <a class="nav-icon position-relative text-decoration-none" href="/views/carrito.html">
-                            <i class="fa fa-fw fa-cart-arrow-down text-dark mr-1"></i>
-                            <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">cart</span>
-                        </a>
-                        <a class="nav-icon position-relative text-decoration-none" href="/signin.php">
-                            <i class="fa fa-fw fa-user text-dark mr-3"></i>
-                            <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">login</span>
-                        </a>
-    
-                        <a class="nav-icon position-relative text-decoration-none" href="/views/user.html">
-                            <i class="fa fa-fw fa-user text-dark mr-3"></i>
-                            <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">user</span>
-                        </a>
+                        <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
+                            
+                            <?php if (isset($_SESSION['email'])) { ?>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/sign-edit.php"><?php echo "Hola, $nombre "?></a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <form action="logout.php" method="post">
+                                        <button type="submit" class="nav-link">Logout</button>
+                                    </form>
+                                </li>
+
+                            <?php } else { ?>
+     
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/signin.html">Iniciar sesión</a>
+                                </li>
+
+                            <?php } ?>
+
+                        </ul>
                     </div>
     
                 </div>
     
             </div>
         </nav>
-        <!-- Close Header -->
+        <!-- FIN HEADER -->
     
 
-        <!-- Modal -->
-        <div class="modal fade bg-white" id="templatemo_search" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="w-100 pt-1 mb-5 text-right">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="" method="get" class="modal-content modal-body border-0 p-0">
-                    <div class="input-group mb-2">
-                        <input type="text" class="form-control" id="inputModalSearch" name="q" placeholder="Search ...">
-                        <button type="submit" class="input-group-text bg-success text-light">
-                            <i class="fa fa-fw fa-search text-white"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    
-
-        <!-- Start Banner Hero -->
-        <div id="template-mo-zay-hero-carousel" class="carousel slide" data-bs-ride="carousel">
-            <ol class="carousel-indicators">
-                <li data-bs-target="#template-mo-zay-hero-carousel" data-bs-slide-to="0" class="active"></li>
-                <li data-bs-target="#template-mo-zay-hero-carousel" data-bs-slide-to="1"></li>
-                <li data-bs-target="#template-mo-zay-hero-carousel" data-bs-slide-to="2"></li>
-            </ol>
-            <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <div class="container">
-                        <div class="row p-5">
-                            <div class="mx-auto col-md-8 col-lg-6 order-lg-last">
-                                <img class="img-fluid" src="/assets/img/banner_img_01.jpg" alt="">
-                            </div>
-                            <div class="col-lg-6 mb-0 d-flex align-items-center">
-                                <div class="text-align-left align-self-center">
-                                    <h1 class="h1 text-success"><b>FutSkin</b> Tienda virtual</h1>
-                                    <h3 class="h2">Camisetas para los verdaderos hinchas</h3>
-                                    <p>
-                                        Las mejores camisetas orignales para alentar a tu equipo en todo momento.
-                                    </p>
-                                </div>
-                            </div>
+        <!-- BANNER -->
+        <div id="template-mo-zay-hero-carousel" class="carousel slide">
+            <div class="container">
+                <div class="row p-3">
+                    <div class="mx-auto col-md-8 col-lg-6 order-lg-last">
+                        <img class="img-fluid" src="/assets/img/banner_img_01.jpg" alt="">
+                    </div>                            
+                    <div class="col-lg-6 mb-0 d-flex align-items-center">
+                        <div class="text-align-left align-self-center">
+                            <h1 class="h1 text-success"><b>FutSkin</b> Tienda virtual</h1>
+                            <h3 class="h2">Camisetas para los verdaderos hinchas</h3>
+                            <p>
+                                Las mejores camisetas orignales para alentar a tu equipo en todo momento.
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
-            <a class="carousel-control-prev text-decoration-none w-auto ps-3" href="#template-mo-zay-hero-carousel" role="button" data-bs-slide="prev">
-                <i class="fas fa-chevron-left"></i>
-            </a>
-            <a class="carousel-control-next text-decoration-none w-auto pe-3" href="#template-mo-zay-hero-carousel" role="button" data-bs-slide="next">
-                <i class="fas fa-chevron-right"></i>
-            </a>
         </div>
-        <!-- End Banner Hero -->
+        <!-- FIN BANNER -->
     
 
-        <!-- Start Categories of The Month -->
+        <!-- CATEGORIAS -->
         <section class="container py-5">
             <div class="row text-center pt-3">
                 <div class="col-lg-6 m-auto">
@@ -184,10 +194,10 @@
 
             </div>
         </section>
-        <!-- End Categories of The Month -->
+        <!-- FIN CATEGORIAS -->
     
     
-        <!-- Start Featured Product -->
+        <!-- PRODUCTOS -->
         <section class="bg-light">
             <div class="container py-5">
                 <div class="row text-center py-3">
@@ -205,10 +215,10 @@
                 </div>
             </div>
         </section>
-        <!-- End Featured Product -->
+        <!-- FIN PRODUCTOS -->
     
 
-        <!-- Start Footer -->
+        <!-- FOOTER -->
         <footer class="bg-dark" id="tempaltemo_footer">
             <div class="container">
                 <div class="row">
@@ -269,16 +279,7 @@
                 </div>
             </div>
         </footer>
-        <!-- End Footer -->
+    <!-- FIN FOOTER -->
     
-
-        <!-- Start Script -->
-        <script src="assets/js/jquery-1.11.0.min.js"></script>
-        <script src="assets/js/jquery-migrate-1.2.1.min.js"></script>
-        <script src="assets/js/bootstrap.bundle.min.js"></script>
-        <script src="assets/js/templatemo.js"></script>
-        <script src="assets/js/custom.js"></script>
-        <!-- End Script -->
     </body>
-    
-    </html>
+</html>

@@ -180,10 +180,5 @@ function main(){
 }
 
 main(); // Llama a la función principal
-?>
-
-
-
-main();
 
 ?>
