@@ -235,7 +235,7 @@ https://templatemo.com/tm-559-zay-shop
             </div>
 
             <div class="form-group col-md-3 mb-3">
-                <label for="descuento">Stock</label>
+                <label for="stock">Stock</label>
                 <input type="text" class="form-control mt-1" id="stock" name="stock" placeholder="Stock">
             </div>
             
