@@ -31,24 +31,20 @@ function main(){
             if ($filasAfectadas>0){
                 // o bien ir a signin.html
                 crearSesion('email', $email); // crea sesion y redirige a principal
-            
             }            
-              }else{
-
-            if ($resVerEmail!=NULL){
-                echo 'Email existente. <a href="signup.html">vuelva a intenarlo</a>.<br/>';
-
-            } else{ 
+            } else {
+                if ($resVerEmail!=NULL){
+                    echo 'Email existente. <a href="signup.html">vuelva a intenarlo</a>.<br/>';
+                } else { 
                 echo "$resVerEmail";
                 echo ' <a href="signup.php">vuelva a intenarlo</a>.<br/>';            
             }         
         }
-    }else{   
+    } else {   
         echo 'No coincide los password. <a href="signup.html">vuelva a intenarlo</a>.<br/>';
     }    
-    // cerrar conexión '$conn' de base de datos
-    cerrarBDConexion($conn);  
-    
+// cerrar conexión '$conn' de base de datos
+cerrarBDConexion($conn);   
 }
 
 main();

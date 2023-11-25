@@ -1,104 +1,88 @@
 <?php
-  include "sesion.php";
-  include "bd.php";
+include "sesion.php";
+include "bd.php";
 
-  $conn = conectarBDUsuario();
+$conn = conectarBDUsuario();
   
-  // Verificar si la sesión está iniciada y la clave 'email' está presente
-  if (isset($_SESSION['email'])) {
-      $sesion = $_SESSION['email'];
-  
-      // Verificar si la consulta de datos del usuario es exitosa
-      $usuario = consultaDatosUsuario($conn, $sesion);
-      
-      if ($usuario !== null) {
-          $nombre = $usuario['nombre'];
-          $rol = $usuario['rol'];
-  
-          echo "User Email: $sesion // ";
-          echo "User Name: $nombre // ";
-          echo "User Role: $rol";
-
-          // Resto del código que usa $nombre y $rol
-      } else {
-          echo "Error al obtener datos del usuario.";
-      }
-  } else {
-      echo "No hay sesión iniciada.";
-  }
-
-
-    $sesionUsuario = controlarSesion();
-
-    // Variables para el contenido de los input
-    $email = "no data";
-    $apellido = "no data";
-    $nombre = "no data";
-    $password = "no data";
-
-    if ($sesionUsuario != NULL) {
-        // Abrir conexión a base de datos, en este caso 'bd_usuario'
-        $conn = conectarBDUsuario();
-        // Ejecutar consulta
-        $resultado = consultaDatosUsuario($conn, $sesionUsuario);
-
-        // Cerrar conexión '$conn' de base de datos
-        cerrarBDConexion($conn);
-
-        if ($resultado != NULL) {
-            // Obtener datos del usuario
-            $email = $resultado['email'];
-            $apellido = $resultado['apellido'];
-            $nombre = $resultado['nombre'];
-            $password = $resultado['contrasena'];
-        }
+// Verificar si la sesión está iniciada y la clave 'email' está presente
+if (isset($_SESSION['email'])) {
+    $sesion = $_SESSION['email'];
+    // Verificar si la consulta de datos del usuario es exitosa
+    $usuario = consultaDatosUsuario($conn, $sesion); 
+    if ($usuario !== null) {
+        $nombre = $usuario['nombre'];
+        $rol = $usuario['rol'];
+        echo "User Email: $sesion // ";
+        echo "User Name: $nombre // ";
+        echo "User Role: $rol";
+    } else {
+        echo "Error al obtener datos del usuario.";
     }
+} else {
+    echo "No hay sesión iniciada.";
+}
 
-    // Verificar si el formulario ha sido enviado
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Recoger los datos del formulario
-        $nuevoEmail = $_POST["nuevo_email"];
-        $nuevoApellido = $_POST["nuevo_apellido"];
-        $nuevoNombre = $_POST["nuevo_nombre"];
-        $nuevoPassword = $_POST["nuevo_password"];
+$sesionUsuario = controlarSesion();
 
-        // Abrir conexión a la base de datos
-        $conn = conectarBDUsuario();
+// Variables para el contenido de los input
+$email = "no data";
+$apellido = "no data";
+$nombre = "no data";
+$password = "no data";
 
-        // Llamar a la función para actualizar los datos del usuario
-        $actualizado = actualizarDatosUsuario($conn, $sesionUsuario, $nuevoEmail, $nuevoApellido, $nuevoNombre, $nuevoPassword);
+if ($sesionUsuario != NULL) {
+    // Abrir conexión a base de datos, en este caso 'bd_usuario'
+    $conn = conectarBDUsuario();
+    // Ejecutar consulta
+    $resultado = consultaDatosUsuario($conn, $sesionUsuario);
+    // Cerrar conexión '$conn' de base de datos
+    cerrarBDConexion($conn);
 
-        // Cerrar conexión '$conn' de base de datos
-        cerrarBDConexion($conn);
-
-        if ($actualizado) {
-            echo "Datos actualizados correctamente.";
-            // Puedes redirigir al usuario a otra página o mostrar un mensaje de éxito.
-        } else {
-            echo "Error al actualizar los datos.";
-            // Puedes mostrar un mensaje de error o realizar alguna otra acción.
-        }
+    if ($resultado != NULL) {
+        // Obtener datos del usuario
+        $email = $resultado['email'];
+        $apellido = $resultado['apellido'];
+        $nombre = $resultado['nombre'];            
+        $password = $resultado['contrasena'];
     }
+}
+
+// Verificar si el formulario ha sido enviado
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Recoger los datos del formulario
+    $nuevoEmail = $_POST["nuevo_email"];
+    $nuevoApellido = $_POST["nuevo_apellido"];
+    $nuevoNombre = $_POST["nuevo_nombre"];
+    $nuevoPassword = $_POST["nuevo_password"];
+    // Abrir conexión a la base de datos
+    $conn = conectarBDUsuario();
+    // Llamar a la función para actualizar los datos del usuario
+    $actualizado = actualizarDatosUsuario($conn, $sesionUsuario, $nuevoEmail, $nuevoApellido, $nuevoNombre, $nuevoPassword);
+    // Cerrar conexión '$conn' de base de datos
+    cerrarBDConexion($conn);
+    if ($actualizado) {
+        echo "Datos actualizados correctamente.";
+        // Puedes redirigir al usuario a otra página o mostrar un mensaje de éxito.
+    } else {
+        echo "Error al actualizar los datos.";
+        // Puedes mostrar un mensaje de error o realizar alguna otra acción.
+    }
+}
 
 // Función para actualizar los datos del usuario en la base de datos
 function actualizarDatosUsuario($conn, $sesionUsuario, $nuevoEmail, $nuevoApellido, $nuevoNombre, $nuevoPassword){
     // Aquí debes implementar la lógica para realizar el UPDATE en la base de datos.
     // Debes tener una tabla en la base de datos donde almacenes los datos del usuario.
-
     // Ejemplo de consulta (asegúrate de adaptarla a tu esquema de base de datos):
     $sql = "UPDATE clientes SET email=?, apellido=?, nombre=?, contrasena=? WHERE id=?";
     $stmt = $conn->prepare($sql);
-
     if (!$stmt) {
         return false;
     }
-
     // Bind the parameters
     $stmt->bind_param("ssssi", $nuevoEmail, $nuevoApellido, $nuevoNombre, $nuevoPassword, $sesionUsuario);
-
     // Execute the statement
     $resultado = $stmt->execute();
-
     return $resultado;
 }
 

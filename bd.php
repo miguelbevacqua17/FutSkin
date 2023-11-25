@@ -252,18 +252,10 @@ function traerProductosHTML($tipo = "default") {
             $html .= '<div class="card-img-overlay rounded-0 product-overlay d-flex align-items-center justify-content-center">';
             $html .= '</div>';
             $html .= '<div class="card-body">';
-            $html .= '<a href="shop-single.php?id=' . $id . '" class="h3 text-decoration-none">' . $nombre . '</a>'; // Modificado
+            $html .= '<a href="shop-single.php?id=' . $id . '" class="h3 text-center">' . $nombre . '</a>'; // Modificado
             $html .= '<ul class="w-100 list-unstyled d-flex justify-content-between mb-0">';
-            $html .= '<li>S/M/L/X/XL</li>';
-            $html .= '<li class="pt-2">';
-            $html .= '<span class="product-color-dot color-dot-red float-left rounded-circle ml-1"></span>';
-            $html .= '<span class="product-color-dot color-dot-blue float-left rounded-circle ml-1"></span>';
-            $html .= '<span class="product-color-dot color-dot-black float-left rounded-circle ml-1"></span>';
-            $html .= '<span class="product-color-dot color-dot-light float-left rounded-circle ml-1"></span>';
-            $html .= '<span class="product-color-dot color-dot-green float-left rounded-circle ml-1"></span>';
-            $html .= '</li>';
             $html .= '</ul>';
-            $html .= '<p class="text-center mb-0">$' . $precio . '</p>';
+            $html .= '<p class="text-right mb-0">$' . $precio . '</p>';
             $html .= '</div>';
             $html .= '</div>';
             $html .= '</div>';
