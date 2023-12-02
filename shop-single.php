@@ -12,6 +12,7 @@
       if ($usuario !== null) {
           $nombre = $usuario['nombre'];
           $rol = $usuario['rol'];
+          $usuarioID = $usuario['id'];
           echo "User Email: $sesion // ";
           echo "User Name: $nombre // ";
           echo "User Role: $rol";
@@ -33,8 +34,11 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     exit; // O redirige a una página de error
 }
 
+
+
 // Obtener detalles del producto por ID
 // Llamada a la función para obtener detalles del producto
+
 $carrito = $_GET['id'];
 $producto = obtenerDetalleProducto($productoID);
 // Verificar si se encontró el producto
@@ -43,7 +47,11 @@ if ($producto === NULL) {
     echo "Producto no encontrado";
     exit; // O redirige a una página de error
 }
+
+
 $precio = $producto['precio_lista'];
+
+
 $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
 // Resto del código HTML para mostrar la información del producto
 ?>
@@ -98,26 +106,25 @@ $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
                         <li class="nav-item">
                            <a class="nav-link" href="shop.php">Tienda</a>
                         </li>                            
-                            <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/carrito.php">Carrito</a>
-                        </li>
-                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>        
-                        <li class="nav-item">
-                            <a class="nav-link" href="/crecion-producto.php">Nuevo producto</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin.php">Vista Administrador</a>
-                        </li>
-                            <?php } else { ?>
-                                <?php foreach ($nombresCategorias as $categoria) { ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#"><?php echo $categoria; ?></a>
-                        </li>
-                                <?php } } ?>
+                        <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/carrito.php">Carrito</a>
+                                </li>
+                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
+                            <li class="nav-item">
+                                <a class="nav-link" href="/creacion-producto.php">Nuevo producto</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin.php">Vista Administrador</a>                        
+                            </li>
+                            
+                                <?php } else { ?>
+                                    <li class="nav-item"></li>
+                                    <li class="nav-item"></li>
+                                <?php } ?>
                     </ul>
                 </div>
                     
@@ -176,31 +183,32 @@ $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
                 <div class="col-lg-7 mt-5">
                     <div class="card">
                         <div class="card-body">
-                            <h1 class="h2"><?php echo $producto['nombre']; ?></h1>
+                            <h1 class="h2"><?php echo $producto['producto']; ?></h1>
                             <p class="h3 py-2">$<?php echo $producto['precio_lista']; ?></p>
                             <ul class="list-inline">
                                 <li class="list-inline-item">
                                     <h6>Categoria:</h6>
                                 </li>
                                 <li class="list-inline-item">
-                                    <p class="text-muted"><strong><?php echo $producto['categoria_fk']; ?></strong></p>
+                                    <p><strong><?php echo $producto['nombre']; ?></strong></p>
                                 </li>
                             </ul>
                             <h6>Descripción:</h6>
                             <p><?php echo $producto['descripcion']; ?></p>
-                            <form action="" method="GET">
+
+                            
+                            <form action="principal.php" method="GET">
+                                <input type="hidden" name="carrito" value="<?php echo $carrito; ?>">
                                 <div class="row pb-3">
                                     <div class="col d-grid">
-                                        <?php
-                                            // Supongamos que $carrito contiene el ID del producto
-                                            $carrito; // Debes implementar tu propia lógica para obtener el ID del producto
-                                        ?>
-                                        <button type="submit" class="btn btn-success btn-lg" id="<?php echo $carritoFinal; ?>">
+                                        <button type="submit" class="btn btn-success btn-lg">
                                             Agregar al Carrito
                                         </button>
                                     </div>
                                 </div>
                             </form>
+
+
                         </div>
                     </div>
                 </div>
@@ -267,13 +275,6 @@ $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
         </footer>
     <!-- FIN FOOTER -->
 
-    <script>
-        // JavaScript para manejar clic en el botón
-        document.getElementById('agregarCarrito').addEventListener('click', function() {
-            // Redirigir al script PHP que maneja la lógica de agregar al carrito
-            window.location.href = 'agregar_al_carrito.php?producto_id=1'; // Ajusta el ID del producto según tu lógica
-        });
-    </script>
 
     <!-- Start Script -->
     <script src="/assets/js/jquery-1.11.0.min.js"></script>

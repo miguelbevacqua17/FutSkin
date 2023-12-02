@@ -23,9 +23,10 @@
       echo "No hay sesión iniciada.";
   }
 
-  $categoriasHTML = traerCategoriasHTML();
-  $productosHTML = traerProductosHTML("detalle");
-  $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
+    $categoriasHTML = traerCategoriasHTML();
+    $productosHTML = traerProductosHTML("detalle");
+    $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
+
 ?>  
 
 
@@ -74,26 +75,25 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="shop.php">Tienda</a>
                             </li>                            
-                                <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
+                            <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/carrito.php">Carrito</a>
+                                </li>
+                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
                             <li class="nav-item">
-                                <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/carrito.php">Carrito</a>
-                            </li>
-                                <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
-                            <li class="nav-item">
-                                <a class="nav-link" href="/crecion-producto.php">Nuevo producto</a>
+                                <a class="nav-link" href="/creacion-producto.php">Nuevo producto</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="/admin.php">Vista Administrador</a>                        
                             </li>
+                            
                                 <?php } else { ?>
-                                    <?php foreach ($nombresCategorias as $categoria) { ?>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#"><?php echo $categoria; ?></a>
-                            </li>
-                                <?php } } ?>
+                                    <li class="nav-item"></li>
+                                    <li class="nav-item"></li>
+                                <?php } ?>
                         </ul>
                     </div>            
                 <div class="navbar align-self-center d-flex">
@@ -140,62 +140,40 @@
     <div class="container py-5">
         <div class="row">
             <div class="col-lg-3">
-                <h1 class="h2 pb-4">Categorías</h1>
-                <ul class="list-unstyled templatemo-accordion">
-                    <li class="pb-3">
-                        <a class="collapsed d-flex justify-content-between h3 text-decoration-none" href="#">
-                            Equipos
-                            <i class="fa fa-fw fa-chevron-circle-down mt-1"></i>
-                        </a>
-                        <ul class="collapse show list-unstyled pl-3">   
-                        <?php foreach ($nombresCategorias as $nombreCategoria): ?>
-                            <li><?php echo $nombreCategoria; ?></li>
-                        <?php endforeach; ?>
-                        </ul>
-                    </li>
-                </ul>
+                <h1 class="h2 pb-4">Todos los productos</h1>
             </div>
             <div class="col-lg-9">
                 <div class="row">
-                    <div class="col-md-6">
-                        <ul class="list-inline shop-top-menu pb-3 pt-1">
+                    <div class="col-md-12">
+                        <ul class="list-inline shop-top-menu pb-6 pt-1">
                             <li class="list-inline-item">
-                                <a class="h3 text-dark text-decoration-none mr-3" href="#">Todas</a>
+                                <a class="h3 text-dark text-decoration-none mr-3" href="/categoria.php?id=1">River</a>
                             </li>
                             <li class="list-inline-item">
-                                <a class="h3 text-dark text-decoration-none mr-3" href="#">River</a>
+                                <a class="h3 text-dark text-decoration-none mr-3" href="/categoria.php?id=2">Boca</a>
                             </li>
                             <li class="list-inline-item">
-                                <a class="h3 text-dark text-decoration-none" href="#">Boca</a>
+                                <a class="h3 text-dark text-decoration-none" href="/categoria.php?id=3">San Lorenzo</a>
                             </li>
                             <li class="list-inline-item">
-                                <a class="h3 text-dark text-decoration-none" href="#">Selección</a>
+                                <a class="h3 text-dark text-decoration-none" href="/categoria.php?id=4">Independiente</a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a class="h3 text-dark text-decoration-none" href="/categoria.php?id=5">Racing</a>
                             </li>
                         </ul>
                     </div>
                 </div>
                 <div class="row">
-                    <?php echo $productosHTML ?>
+                    <?php 
+                            echo $productosHTML;
+                    ?>
                 </div>
             </div>
         </div>
     </div>
     <!-- End Content -->
 
-    <!--Controls-->
-    <div class="col-1 align-self-center">
-        <a class="h1" href="#multi-item-example" role="button" data-bs-slide="next">
-            <i class="text-light fas fa-chevron-right"></i>
-        </a>
-    </div>
-    <!--End Controls-->
-    
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!--End Brands-->
 
 
 <!-- FOOTER -->

@@ -3,22 +3,18 @@
   include "bd.php";
 
   $conn = conectarBDUsuario();
-  
+
   // Verificar si la sesión está iniciada y la clave 'email' está presente
   if (isset($_SESSION['email'])) {
       $sesion = $_SESSION['email'];
-  
       // Verificar si la consulta de datos del usuario es exitosa
       $usuario = consultaDatosUsuario($conn, $sesion);
-      
       if ($usuario !== null) {
           $nombre = $usuario['nombre'];
           $rol = $usuario['rol'];
-  
           echo "User Email: $sesion // ";
           echo "User Name: $nombre // ";
           echo "User Role: $rol";
-
           // Resto del código que usa $nombre y $rol
       } else {
           echo "Error al obtener datos del usuario.";
@@ -27,39 +23,22 @@
       echo "No hay sesión iniciada.";
   }
 
-  $categoriasHTML = traerCategoriasHTML();
-  $productosHTML = traerProductosHTML("detalle");
-  $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
-  $categorias = categorias();
-
-  $IdCat = $categoria['id'];
-
+  $categoria = NULL;
 
   // Verificar si se proporciona un ID válido en la URL
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+  if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $categoriaID = $_GET['id'];
-    // Ahora, $productoID contiene el ID del producto que se debe mostrar
-} else {
-    // Manejar el caso en que no se proporciona un ID válido
-    echo "ID de producto no válido";
-    exit; // O redirige a una página de error
-}
+    // Obtener detalles de la categoría por ID
+    $categoria = obtenerDetalleCategoria($categoriaID);
+  }
 
+  $tituloCategoria = $categoria['nombre'];;
 
-// Obtener detalles de la categoria por ID
+    
 
-// Llamada a la función para obtener detalles de la categoria
-$categoriaID = $_GET['id'];
-$equipo = obtenerDetalleCategoria($categoriaID);
-
-// Verificar si se encontró el producto
-if ($equipo === NULL) {
-    // Manejar el caso en que no se encontró el producto
-    echo "Categoria no encontrada";
-    exit; // O redirige a una página de error
-}
-
-$nombre = $equipo['nombre'];
+    $categoriasHTML = traerCategoriasHTML();
+    $productosHTML = traerProductosHTML("detalle");
+    $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
 
 ?>  
 
@@ -71,121 +50,87 @@ $nombre = $equipo['nombre'];
     <title>FutSkin</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <link rel="apple-touch-icon" href="/assets/img/apple-icon.png">
     <link rel="shortcut icon" type="image/x-icon" href="/assets/img/favicon.ico">
-
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/templatemo.css">
     <link rel="stylesheet" href="/assets/css/custom.css">
-
     <!-- Load fonts style after rendering the layout styles -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
     <link rel="stylesheet" href="/assets/css/fontawesome.min.css">
 </head>
 
 <body>
-    
-        <!-- NAV -->
-        <nav class="navbar navbar-expand-lg bg-dark navbar-light d-none d-lg-block" id="templatemo_nav_top">
-            <div class="container text-light">
-                <div class="w-100 d-flex justify-content-between">
-                    <div>
-                    </div>
+    <!-- NAV -->
+    <nav class="navbar navbar-expand-lg bg-dark navbar-light d-none d-lg-block" id="templatemo_nav_top">
+        <div class="container text-light">
+            <div class="w-100 d-flex justify-content-between">
+                <div>
                 </div>
             </div>
-        </nav>
-        <!-- FIN NAV -->
+        </div>
+    </nav>
+    <!-- FIN NAV -->
     
-    
-        <!-- HEADER -->
-        <nav class="navbar navbar-expand-lg navbar-light shadow">
-            <div class="container d-flex justify-content-between align-items-center">
-    
-                <a class="navbar-brand text-success logo h1 align-self-center" href="/principal.php">
-                    FutSkin
-                </a>
-    
+    <!-- HEADER -->
+    <nav class="navbar navbar-expand-lg navbar-light shadow">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand text-success logo h1 align-self-center" href="/principal.php">FutSkin</a>
                 <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#templatemo_main_nav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-    
                 <div class="align-self-center collapse navbar-collapse flex-fill  d-lg-flex justify-content-lg-between" id="templatemo_main_nav">
                     <div class="flex-fill">
-                        <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
+                        <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">                        
                             <li class="nav-item">
                                 <a class="nav-link" href="principal.php">Inicio</a>
                             </li>
-
                             <li class="nav-item">
                                 <a class="nav-link" href="shop.php">Tienda</a>
                             </li>                            
-
                             <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
                                 </li>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/carrito.php">Carrito</a>
                                 </li>
-
-                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>
-                                
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/crecion-producto.php">Nuevo producto</a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/admin.php">Vista Administrador</a>
-                                </li>
-
-                            <?php } else { ?>
-
-                            <?php foreach ($categorias as $categoria) { ?>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/categorias.php?id=<?php echo $IdCat ?>"><?php echo $nombre; ?></a>
-                                </li>
-                            <?php } } ?>
-
-                        </ul>
-
-
-                    </div>
-                    
-                    <div class="navbar align-self-center d-flex">
-                        <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
+                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
+                            <li class="nav-item">
+                                <a class="nav-link" href="/creacion-producto.php">Nuevo producto</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin.php">Vista Administrador</a>                        
+                            </li>
                             
-                            <?php if (isset($_SESSION['email'])) { ?>
-
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/sign-edit.php"><?php echo "Hola, $nombre "?></a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <form action="logout.php" method="post">
-                                        <button type="submit" class="nav-link">Logout</button>
-                                    </form>
-                                </li>
-
-                            <?php } else { ?>
-     
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/signin.html">Iniciar sesión</a>
-                                </li>
-
-                            <?php } ?>
-
+                                <?php } else { ?>
+                                    <li class="nav-item"></li>
+                                    <li class="nav-item"></li>
+                                <?php } ?>
                         </ul>
-                    </div>
-    
+                    </div>            
+                <div class="navbar align-self-center d-flex">
+                    <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
+                        <?php if (isset($_SESSION['email'])) { ?>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/sign-edit.php"><?php echo "Hola, $nombre "?></a>
+                            </li>
+                            <li class="nav-item">
+                                <form action="logout.php" method="post">                                
+                                    <button type="submit" class="nav-link">Logout</button>
+                                </form>
+                            </li>
+                            <?php } else { ?>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/signin.html">Iniciar sesión</a>                        
+                            </li>
+                            <?php } ?>
+                    </ul>
                 </div>
-    
             </div>
-        </nav>
-        <!-- FIN HEADER -->
-
+        </div>
+    </nav>
+    <!-- FIN HEADER -->
 
     <!-- Modal -->
     <div class="modal fade bg-white" id="templatemo_search" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -204,161 +149,96 @@ $nombre = $equipo['nombre'];
         </div>
     </div>
 
-
-
     <!-- Start Content -->
     <div class="container py-5">
         <div class="row">
-
             <div class="col-lg-3">
-                <h1 class="h2 pb-4">Categorías</h1>
-                <ul class="list-unstyled templatemo-accordion">
-                    <li class="pb-3">
-                        <a class="collapsed d-flex justify-content-between h3 text-decoration-none" href="#">
-                            Equipos
-                            <i class="fa fa-fw fa-chevron-circle-down mt-1"></i>
-                        </a>
-                        
-                            
-                        <?php foreach ($categorias as $categoria): ?>
-                            <ul class="collapse show list-unstyled pl-3" href="/shop.php?id=<?php echo $id ?>">
-                                <li><a href="/shop.php?id=<?php echo $id ?>"><?php echo $nombre; ?></a></li>
-                            </ul>
-                        <?php endforeach; ?>
-
-
-                    </li>
-                    
-                </ul>
+                <h1 class="h2 pb-4">Categoría: <?php echo $tituloCategoria; ?></h1>
             </div>
-
             <div class="col-lg-9">
                 <div class="row">
-                    <div class="col-md-6">
-                        <ul class="list-inline shop-top-menu pb-3 pt-1">
+                <div class="col-md-12">
+                        <ul class="list-inline shop-top-menu pb-6 pt-1">
                             <li class="list-inline-item">
-                                <a class="h3 text-dark text-decoration-none mr-3" href="#"><?php echo $nombre; ?></a>
+                                <a class="h3 text-dark text-decoration-none mr-3" href="/shop.php">Todo</a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a class="h3 text-dark text-decoration-none mr-3" href="/categoria.php?id=1">River</a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a class="h3 text-dark text-decoration-none mr-3" href="/categoria.php?id=2">Boca</a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a class="h3 text-dark text-decoration-none" href="/categoria.php?id=3">San Lorenzo</a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a class="h3 text-dark text-decoration-none" href="/categoria.php?id=4">Independiente</a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a class="h3 text-dark text-decoration-none" href="/categoria.php?id=5">Racing</a>
                             </li>
                         </ul>
                     </div>
-                    <div class="col-md-6 pb-4">
-
-                    </div>
                 </div>
                 <div class="row">
-
-                <?php echo $productosHTML ?>
-                   
-
-                   
-                </div>
-                <div div="row">
-                    <ul class="pagination pagination-lg justify-content-end">
-                        <li class="page-item disabled">
-                            <a class="page-link active rounded-0 mr-3 shadow-sm border-top-0 border-left-0" href="#" tabindex="-1">1</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link rounded-0 mr-3 shadow-sm border-top-0 border-left-0 text-dark" href="#">2</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link rounded-0 shadow-sm border-top-0 border-left-0 text-dark" href="#">3</a>
-                        </li>
-                    </ul>
+                    <?php 
+                        // Obtener productos por categoría
+                        $productosPorCategoria = obtenerProductosPorCategoria($conn, $categoriaID);
+                        // Mostrar contenido según la categoría y productos por categoría
+                        $mostrarProductos = mostrarContenidoSegunCategoria($productosPorCategoria);
+                            echo $mostrarProductos;
+                    ?>
                 </div>
             </div>
-
         </div>
     </div>
     <!-- End Content -->
 
-    <!-- Start Brands -->
-    <section class="bg-light py-5">
-        <div class="container my-4">
-            <div class="row text-center py-3">
-                <div class="col-lg-6 m-auto">
-                    <h1 class="h1">Nuestras marcas</h1>
-                    <p>
-                        Trabajamos con las mejores marcas. 
-                    </p>
-                </div>
-                <div class="col-lg-9 m-auto tempaltemo-carousel">
-                    <div class="row d-flex flex-row">
-                        <!--Controls-->
-                        <div class="col-1 align-self-center">
-                            <a class="h1" href="#multi-item-example" role="button" data-bs-slide="prev">
-                                <i class="text-light fas fa-chevron-left"></i>
-                            </a>
-                        </div>
-                        <!--End Controls-->
-
-
-
-                        <!--Controls-->
-                        <div class="col-1 align-self-center">
-                            <a class="h1" href="#multi-item-example" role="button" data-bs-slide="next">
-                                <i class="text-light fas fa-chevron-right"></i>
-                            </a>
-                        </div>
-                        <!--End Controls-->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!--End Brands-->
 
 
 <!-- FOOTER -->
 <footer class="bg-dark" id="tempaltemo_footer">
-            <div class="container">
-                <div class="row">
-    
-                    <div class="col-md-4 pt-5">
-                        <h2 class="h2 text-success border-bottom pb-3 border-light logo">FutSkin</h2>
-                        <ul class="list-unstyled text-light footer-link-list">
-                            <li>
-                                <i class="fas fa-map-marker-alt fa-fw"></i>
-                                Dirección
-                            </li>
-                            <li>
-                                <i class="fa fa-phone fa-fw"></i>
-                                <a class="text-decoration-none" href="tel:">4200 - 7777</a>
-                            </li>
-                            <li>
-                                <i class="fa fa-envelope fa-fw"></i>
-                                <a class="text-decoration-none" href="mailto:info@company.com">contacto@futskin.com</a>
-                            </li>
-                        </ul>
-                    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 pt-5">
+                <h2 class="h2 text-success border-bottom pb-3 border-light logo">FutSkin</h2>
+                    <ul class="list-unstyled text-light footer-link-list">
+                        <li>
+                            <i class="fas fa-map-marker-alt fa-fw"></i>Dirección
+                        </li>
+                        <li>
+                            <i class="fa fa-phone fa-fw"></i>
+                            <a class="text-decoration-none" href="tel:">4200 - 7777</a>
+                        </li>
+                        <li>
+                            <i class="fa fa-envelope fa-fw"></i>
+                            <a class="text-decoration-none" href="mailto:info@company.com">contacto@futskin.com</a>
+                        </li>
+                    </ul>
+            </div>
 
-                    <div class="col-md-4 pt-5">
-                        <h2 class="h2 text-light border-bottom pb-3 border-light">Categorías</h2>
-                        <ul class="list-unstyled text-light footer-link-list">
-
-                        <?php foreach ($categorias as $categoria) { ?>
-                          <li><a class="text-decoration-none" href="/shop.php?id=<?php echo $id ?>"><?php echo $nombre; ?></a></li>
+            <div class="col-md-4 pt-5">
+                <h2 class="h2 text-light border-bottom pb-3 border-light">Categorías</h2>
+                    <ul class="list-unstyled text-light footer-link-list">
+                        <?php foreach ($nombresCategorias as $categoria) { ?>
+                          <li><a class="text-decoration-none" href="#"><?php echo $categoria; ?></a></li>
                         <?php } ?>
-
-                        
-                        </ul>
-                    </div>
-    
-                    <div class="col-md-4 pt-5">
-                        <h2 class="h2 text-light border-bottom pb-3 border-light">Accesos rápidos</h2>
-                        <ul class="list-unstyled text-light footer-link-list">
-                            <li><a class="text-decoration-none" href="principal.php">Inicio</a></li>
-                            <li><a class="text-decoration-none" href="shop.php">Tienda</a></li>
-                        </ul>
-                    </div>
-                </div>
-    
-                <div class="row text-light mb-4">
-                    <div class="col-12 mb-3">
-                        <div class="w-100 my-3 border-top border-light"></div>
-                    </div>
+                    </ul>
+            </div>
+            <div class="col-md-4 pt-5">
+                <h2 class="h2 text-light border-bottom pb-3 border-light">Accesos rápidos</h2>
+                    <ul class="list-unstyled text-light footer-link-list">
+                        <li><a class="text-decoration-none" href="principal.php">Inicio</a></li>
+                        <li><a class="text-decoration-none" href="shop.php">Tienda</a></li>
+                    </ul>
                 </div>
             </div>
-    
+            <div class="row text-light mb-4">
+                <div class="col-12 mb-3">
+                    <div class="w-100 my-3 border-top border-light"></div>
+                </div>
+            </div>
+        </div>
             <div class="w-100 bg-black py-3">
                 <div class="container">
                     <div class="row pt-2">

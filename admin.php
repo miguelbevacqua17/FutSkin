@@ -28,6 +28,42 @@
   }
 
   $venta = traerVentas();
+
+  function sumarPrecioVentas($venta) {
+    $estadoDeseado = 'venta'; 
+    $totalPrecioVentas = 0;
+
+    // Iterar sobre el array de ventas
+    foreach ($venta as $ventaItem) {
+        // Verificar si existe la clave 'precio_venta' en la venta
+        if (isset($ventaItem['precio_venta']) && $ventaItem['estado'] === $estadoDeseado) {
+            // Sumar el precio_venta al total
+            $totalGanancia = $ventaItem['precio_venta']*$ventaItem['cantidad_prod'];
+            $totalPrecioVentas += $totalGanancia;
+        }
+    }
+
+    return $totalPrecioVentas;
+}
+
+// Uso de la función
+$totalVentas = sumarPrecioVentas($venta);
+
+  //contador ventas
+  $estadoDeseado = 'venta'; 
+  $contadorVentas = 0;
+
+  // Iterar sobre el array de ventas
+    foreach ($venta as $ventaItem) {
+    // Verificar si el estado de la venta es el deseado
+    if (isset($ventaItem['estado']) && $ventaItem['estado'] === $estadoDeseado) {
+        // Incrementar el contador
+        $contadorVentas++;
+    }
+}
+
+// Imprimir el resultado
+echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
 ?>  
 
 <!DOCTYPE html>
@@ -92,32 +128,24 @@
                             </li>                            
 
                             <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
                                 </li>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/carrito.php">Carrito</a>
                                 </li>
-
-                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>
-                                
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/crecion-producto.php">Nuevo producto</a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/admin.php">Vista Administrador</a>
-                                </li>
-
-                            <?php } else { ?>
-
-                            <?php foreach ($nombresCategorias as $categoria) { ?>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#"><?php echo $categoria; ?></a>
-                                </li>
-                            <?php } } ?>
+                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
+                            <li class="nav-item">
+                                <a class="nav-link" href="/creacion-producto.php">Nuevo producto</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin.php">Vista Administrador</a>                        
+                            </li>
+                            
+                                <?php } else { ?>
+                                    <li class="nav-item"></li>
+                                    <li class="nav-item"></li>
+                                <?php } ?>
 
                         </ul>
 
@@ -207,14 +235,15 @@
                         <div class="d-flex border-md-right flex-grow-1 align-items-center justify-content-center p-3 item">
                           <div class="d-flex flex-column justify-content-around">
                             <small class="mb-1 text-muted">Total compras</small>
-                            <h5 class="me-2 mb-0">1</h5>
+                            <h5 class="me-2 mb-0"><?php echo $contadorVentas;?></h5>
                           </div>
                         </div>
                         <div class="d-flex border-md-right flex-grow-1 align-items-center justify-content-center p-3 item">
                           <i class="mdi mdi-eye me-3 icon-lg text-success"></i>
                           <div class="d-flex flex-column justify-content-around">
                             <small class="mb-1 text-muted">Ganancias</small>
-                            <h5 class="me-2 mb-0">$35.000</h5>
+                            <?php ?>
+                            <h5 class="me-2 mb-0">$<?php echo $totalVentas;?></h5>
                           </div>
                         </div>
                         
@@ -244,36 +273,46 @@
                     <table id="recent-purchases-listing" class="table">
                       <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Número de orden</th>
                             <th>Mail usuario</th>
-                            <th>Fecha</th>
-                            <th>Monto</th>
-                            <th>Estado</th>
-                            <th>Editar</th>
-                            <th>Cancelar compra</th>
+                            <th>Producto</th>
+                            <th>Precio unitario</th>
+                            <th>Cantidad</th>
+                            <th>Precio total</th>
+                            <th>Estado</th> 
                         </tr>
                       </thead>
                       <tbody>
                       <?php
+                      $orden = 0;
+
                         foreach ($venta as $ventas) { 
                           $id = $ventas['id']; 
                           $cliente = $ventas['cliente_fk'];
+                          $mailCliente = $ventas['email'];
                           $producto = $ventas['producto_fk'];
+                          $nombreProducto = $ventas['producto'];
                           $precio = $ventas['precio_venta'];
                           $cantidad = $ventas['cantidad_prod'];
+                          $total = $precio*$cantidad;
                           $estado = $ventas['estado'];
-                        ?>
 
+                          if ($estado == "venta") {
+                            $orden = $orden+1;
+                        ?>
                           <tr>
-                            <td><?php echo $id ?></td>
-                            <td><?php echo $cliente ?></td>
-                            <td><?php echo $producto ?></td>
+                            <td><?php echo $orden ?></td>
+                            <td><?php echo $mailCliente ?></td>
+                            <td><?php echo $nombreProducto ?></td>
                             <td>$<?php echo $precio ?></td>
                             <td><?php echo $cantidad ?></td>
+                            <td>$<?php echo $total ?></td>
                             <td><?php echo $estado ?></td>
                           </tr>
 
-                      <?php  } ?>
+                      <?php      }  
+                              }
+                      ?>
                       
                       </tbody>
                     </table>

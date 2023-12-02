@@ -14,9 +14,11 @@
       if ($usuario !== null) {
           $nombre = $usuario['nombre'];
           $rol = $usuario['rol'];
+          $id = $usuario['id'];
   
           echo "User Email: $sesion // ";
           echo "User Name: $nombre // ";
+          echo "User ID: $id // ";
           echo "User Role: $rol";
 
           // Resto del código que usa $nombre y $rol
@@ -27,6 +29,7 @@
       echo "No hay sesión iniciada.";
   }
 
+  $id = $usuario['id'];
 
   $productosCarrito = obtenerProductosCarrito($id);
   $precioTotal = calcularPrecioTotal($productosCarrito);
@@ -92,32 +95,24 @@
                             </li>                            
 
                             <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
                                 </li>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/carrito.php">Carrito</a>
                                 </li>
-
-                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>
-                                
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/crecion-producto.php">Nuevo producto</a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/admin.php">Vista Administrador</a>
-                                </li>
-
-                            <?php } else { ?>
-
-                            <?php foreach ($nombresCategorias as $categoria) { ?>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#"><?php echo $categoria; ?></a>
-                                </li>
-                            <?php } } ?>
+                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
+                            <li class="nav-item">
+                                <a class="nav-link" href="/creacion-producto.php">Nuevo producto</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin.php">Vista Administrador</a>                        
+                            </li>
+                            
+                                <?php } else { ?>
+                                    <li class="nav-item"></li>
+                                    <li class="nav-item"></li>
+                                <?php } ?>
 
                         </ul>
 
@@ -170,9 +165,10 @@
                   <tr>
                     <!-- Set columns width -->
                     <th class="text-center py-3 px-4" style="min-width: 400px;">Producto</th>
-                    <th class="text-right py-3 px-4" style="width: 100px;">Precio</th>
-                    <th class="text-center py-3 px-4" style="width: 120px;">Cantidad</th>
-                    <th class="text-right py-3 px-4" style="width: 100px;">Total</th>
+                    <th class="text-right py-3 px-4" style="width: 200px;">ID pedido</th>
+                    <th class="text-right py-3 px-4" style="width: 200px;">Precio</th>
+                    <th class="text-center py-3 px-4" style="width: 200px;">Cantidad</th>
+                    <th class="text-right py-3 px-4" style="width: 200px;">Total</th>
                     <th class="text-center align-middle py-3 px-0" style="width: 40px;"><a href="#" class="shop-tooltip float-none text-light" title="" data-original-title="Clear cart"><i class="ino ion-md-trash"></i></a></th>
                   </tr>
                 </thead>
@@ -193,20 +189,32 @@
                             }
                             ?>
 
-                <tr>
-                    <td class="p-4">
-                      <div class="media align-items-center">
-                        <img src="/assets/img/<?php echo $producto['imagen']; ?>" class="d-block ui-w-40 ui-bordered mr-4" alt="" height="300" width="300">
-                        <div class="media-body">
-                          <a href="#" class="d-block text-dark"><?php echo $producto['nombre']; ?></a>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="text-right font-weight-semibold align-middle p-4">$<?php echo $producto['precio_lista']; ?></td>
-                    <td class="align-middle p-4"><input type="text" class="form-control text-center" value="<?php echo $producto['cantidad_prod']; ?>"></td>
-                    <td class="text-right font-weight-semibold align-middle p-4">$<?php echo $producto['precio_lista'] * $producto['cantidad_prod']; ?></td>
-                    <td class="text-center align-middle px-0"><a href="/eliminar-producto.php?id=' . $producto['id'] . '" class="shop-tooltip close float-none text-danger" title="Eliminar" data-original-title="Eliminar">×</a></td>
-                </tr>
+
+                    <tr>
+                        <td class="p-4">
+                            <div class="media align-items-center">
+                                <img src="/uploads/<?php echo $producto['imagen']; ?>" class="d-block ui-w-40 ui-bordered mr-4" alt="" height="300" width="300">
+                                <div class="media-body">
+                                    <a class="d-block text-dark"><?php echo $producto['producto']; ?></a>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-right font-weight-semibold align-middle p-4"><?php echo $producto['pedido_id']; ?></td>
+                        <td class="text-right font-weight-semibold align-middle p-4">$<?php echo $producto['precio_lista']; ?></td>
+                        <td class="text-right font-weight-semibold align-middle p-4"><?php echo $producto['cantidad_prod']; ?></td>
+                        <td class="text-right font-weight-semibold align-middle p-4">$<?php echo $producto['precio_lista'] * $producto['cantidad_prod']; ?></td>
+                        <td class="text-center align-middle px-0">
+                        <form action="eliminar_pedido.php" method="POST">
+                            <input type="hidden" name="pedidoID" value="<?php echo $producto['pedido_id']; ?>">
+                            <button type="submit" class="eliminarPedidoBtn" name="eliminarPedidoBtn">×</button>
+                        </form>
+                        </td>
+                    </tr>
+
+
+
+
+
                 
                 <?php
                             }
@@ -232,7 +240,7 @@
             </div>
         
             <div class="float-right">
-              <a href="/views/finalizar-compra.html"><button type="button" class="btn btn-lg btn-primary mt-2" style="background-color: #198754; color: white;">Finalizar compra</button></a>
+              <a href="/finalizar-compra.php"><button type="button" class="btn btn-lg btn-primary mt-2" style="background-color: #198754; color: white;">Finalizar compra</button></a>
             </div>
         
           </div>

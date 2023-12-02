@@ -3,7 +3,7 @@ include "sesion.php";
 include "bd.php";
 
 $conn = conectarBDUsuario();
-  
+
 // Verificar si la sesión está iniciada y la clave 'email' está presente
 if (isset($_SESSION['email'])) {
     $sesion = $_SESSION['email'];
@@ -12,9 +12,13 @@ if (isset($_SESSION['email'])) {
     if ($usuario !== null) {
         $nombre = $usuario['nombre'];
         $rol = $usuario['rol'];
+        $direccion = $usuario['direccion'];
+        $altura = $usuario['altura'];
         echo "User Email: $sesion // ";
         echo "User Name: $nombre // ";
-        echo "User Role: $rol";
+        echo "User Role: $rol // ";
+        echo "Dirección de envío: $direccion // ";
+        echo "Altura: $altura";
     } else {
         echo "Error al obtener datos del usuario.";
     }
@@ -28,7 +32,10 @@ $sesionUsuario = controlarSesion();
 $email = "no data";
 $apellido = "no data";
 $nombre = "no data";
-$password = "no data";
+$direccion = "no data";
+$altura = "no data";
+$piso = "no data";
+$barrio = "no data";
 
 if ($sesionUsuario != NULL) {
     // Abrir conexión a base de datos, en este caso 'bd_usuario'
@@ -42,49 +49,16 @@ if ($sesionUsuario != NULL) {
         // Obtener datos del usuario
         $email = $resultado['email'];
         $apellido = $resultado['apellido'];
-        $nombre = $resultado['nombre'];            
-        $password = $resultado['contrasena'];
+        $nombre = $resultado['nombre'];
+        $direccion = $resultado['direccion'];   
+        $altura = $resultado['altura'];   
+        $piso = $resultado['piso'];   
+        $barrio = $resultado['barrio'];               
     }
 }
 
-// Verificar si el formulario ha sido enviado
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Recoger los datos del formulario
-    $nuevoEmail = $_POST["nuevo_email"];
-    $nuevoApellido = $_POST["nuevo_apellido"];
-    $nuevoNombre = $_POST["nuevo_nombre"];
-    $nuevoPassword = $_POST["nuevo_password"];
-    // Abrir conexión a la base de datos
-    $conn = conectarBDUsuario();
-    // Llamar a la función para actualizar los datos del usuario
-    $actualizado = actualizarDatosUsuario($conn, $sesionUsuario, $nuevoEmail, $nuevoApellido, $nuevoNombre, $nuevoPassword);
-    // Cerrar conexión '$conn' de base de datos
-    cerrarBDConexion($conn);
-    if ($actualizado) {
-        echo "Datos actualizados correctamente.";
-        // Puedes redirigir al usuario a otra página o mostrar un mensaje de éxito.
-    } else {
-        echo "Error al actualizar los datos.";
-        // Puedes mostrar un mensaje de error o realizar alguna otra acción.
-    }
-}
+ $ventasUsuario = buscarPedidosUsuario($_SESSION['email']);
 
-// Función para actualizar los datos del usuario en la base de datos
-function actualizarDatosUsuario($conn, $sesionUsuario, $nuevoEmail, $nuevoApellido, $nuevoNombre, $nuevoPassword){
-    // Aquí debes implementar la lógica para realizar el UPDATE en la base de datos.
-    // Debes tener una tabla en la base de datos donde almacenes los datos del usuario.
-    // Ejemplo de consulta (asegúrate de adaptarla a tu esquema de base de datos):
-    $sql = "UPDATE clientes SET email=?, apellido=?, nombre=?, contrasena=? WHERE id=?";
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        return false;
-    }
-    // Bind the parameters
-    $stmt->bind_param("ssssi", $nuevoEmail, $nuevoApellido, $nuevoNombre, $nuevoPassword, $sesionUsuario);
-    // Execute the statement
-    $resultado = $stmt->execute();
-    return $resultado;
-}
 
 ?>
 
@@ -151,32 +125,24 @@ function actualizarDatosUsuario($conn, $sesionUsuario, $nuevoEmail, $nuevoApelli
                             </li>                            
 
                             <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
                                 </li>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/carrito.php">Carrito</a>
                                 </li>
-
-                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>
-                                
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/crecion-producto.php">Nuevo producto</a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/admin.php">Vista Administrador</a>
-                                </li>
-
-                            <?php } else { ?>
-
-                            <?php foreach ($nombresCategorias as $categoria) { ?>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#"><?php echo $categoria; ?></a>
-                                </li>
-                            <?php } } ?>
+                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
+                            <li class="nav-item">
+                                <a class="nav-link" href="/creacion-producto.php">Nuevo producto</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin.php">Vista Administrador</a>                        
+                            </li>
+                            
+                                <?php } else { ?>
+                                    <li class="nav-item"></li>
+                                    <li class="nav-item"></li>
+                                <?php } ?>
 
                         </ul>
 
@@ -265,38 +231,42 @@ function actualizarDatosUsuario($conn, $sesionUsuario, $nuevoEmail, $nuevoApelli
                         <label for="inputname">Email</label>
                         <input type="text" class="form-control mt-1" id="email" name="email" placeholder="Email" required value="<?php echo $email?>">
                     </div>
-                
+
                     <div class="form-group col-md-6 mb-3">
-                        <label for="inputname">Contraseña</label>
+                    </div>
+                
+                <!--    
+                    <div class="form-group col-md-6 mb-3">
+                        <label for="inputname">Cambiar contraseña</label>
                         <input type="password" class="form-control mt-1" id="precio" name="precio" placeholder="Contraseña">
                     </div>
-                    
+                -->
+
                 <div class="form-group col-md-6 mb-3">
                     <label for="inputname">Dirección de entrega</label>
-                    <input type="text" class="form-control mt-1" id="name" name="name" placeholder="Dirección de entrega">
+                    <input type="text" class="form-control mt-1" id="direccion" name="direccion" placeholder="Dirección de entrega" required value="<?php echo $direccion?>">
                 </div>
                 
                 <div class="form-group col-md-6 mb-3">
                     <label for="inputname">Altura de la calle</label>
-                    <input type="text" class="form-control mt-1" id="precio" name="precio" placeholder="Altura de la calle">
+                    <input type="text" class="form-control mt-1" id="altura" name="altura" placeholder="Altura de la calle" required value="<?php echo $altura?>">
                 </div>
 
                 <div class="form-group col-md-6 mb-3">
                     <label for="inputname">Piso / departamento</label>
-                    <input type="text" class="form-control mt-1" id="name" name="name" placeholder="Piso / departamento">
+                    <input type="text" class="form-control mt-1" id="piso" name="piso" placeholder="Piso / departamento" required value="<?php echo $piso?>">
                 </div>
                 
                 <div class="form-group col-md-6 mb-3">
                     <label for="inputname">Barrio / Localidad</label>
-                    <input type="text" class="form-control mt-1" id="precio" name="precio" placeholder="Barrio / Localidad">
+                    <input type="text" class="form-control mt-1" id="barrio" name="barrio" placeholder="Barrio / Localidad" required value="<?php echo $barrio?>">
                 </div>
 
 
                 
                 <div class="row">
                     <div class="col text-end mt-2">
-                        <button <?php $estadoBotonEnviar ?> type="submit" class="btn btn-success btn-lg px-3" onclick="return confirm('Confirma actualizar los datos ?');" class="btn btn-default">Enviar</button>
-                        <button type="button" onclick="redirigir('signin.html')" class="btn btn-default">Sign in</button>
+                        <button type="submit" class="btn btn-success btn-lg px-3" onclick="return confirm('Confirma actualizar los datos?');">Aplicar cambios</button>
                     </div>
                 </div>
             </div>
@@ -307,36 +277,35 @@ function actualizarDatosUsuario($conn, $sesionUsuario, $nuevoEmail, $nuevoApelli
 
             <div class="col-md-9 m-auto" style="padding-top:20px;">
                 <div class="row py-5">
-                    <p class="card-title">MIS COMPRAS</p>
+                    <p class="card-title">HISTORIAL DE COMPRAS</p>
                     <div class="table-responsive">
                       <table id="recent-purchases-listing" class="table">
                         <thead>
                           <tr>
-                              <th>Número de orden</th>
-                              <th>Fecha</th>
-                              <th>Monto</th>
-                              <th>Estado</th>
+                              <th>Producto</th>
+                              <th>Precio unitario</th>
+                              <th>Cantidad</th>
+                              <th>Precio final</th>
                           </tr>
                         </thead>
                         <tbody>
+
+                        <?php
+                        foreach ($ventasUsuario as $ventas) { 
+                            $producto = $ventas['producto_fk'];
+                            $nombreProducto = $ventas['producto'];
+                            $precio = $ventas['precio_venta'];
+                            $cantidad = $ventas['cantidad_prod'];
+                            $total = $precio*$cantidad;
+                        ?>
                           <tr>
-                              <td>003</td>
-                              <td>11/09/2023</td>
-                              <td>$79.000</td>
-                              <td>Pagado</td>
+                              <td><?php echo $nombreProducto ?></td>
+                              <td>$<?php echo $precio ?></td>
+                              <td><?php echo $cantidad ?></td>
+                              <td>$<?php echo $total ?></td>
                           </tr>
-                          <tr>
-                              <td>003</td>
-                              <td>11/09/2023</td>
-                              <td>$79.000</td>
-                              <td>Pagado</td>
-                          </tr>
-                          <tr>
-                            <td>003</td>
-                            <td>11/09/2023</td>
-                            <td>$79.000</td>
-                            <td>Pagado</td>
-                        </tr>
+                        <?php } ?>
+                          
                         </tbody>
                       </table>
                     </div>

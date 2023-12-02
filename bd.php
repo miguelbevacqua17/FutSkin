@@ -102,7 +102,10 @@ function consultaDatosUsuario($conn, $email) {
     $resultado = NULL;
     if ($conn != NULL) {
         // Confección del string de la Consulta segura para evitar inyecciones SQL.
-        $sql = "SELECT * FROM clientes WHERE email = ? ";
+        $sql = "SELECT clientes.*, envios.* FROM clientes 
+                LEFT JOIN envios ON clientes.envio_fk = envios.id
+                WHERE clientes.email = ? ";
+
         // Preparar la consulta
         $stmt = $conn->prepare($sql);
         if ($stmt) {
@@ -131,23 +134,56 @@ function consultaDatosUsuario($conn, $email) {
 }
 
 
-function actualizarUsuario($conn,$email,$password,$apellido,$nombre ){
+function actualizarUsuario($conn, $email, $apellido, $nombre, $direccion, $altura, $barrio, $piso, $actualizarClientes = true, $actualizarEnvios = true) {
     $filasAfectadas = 0;
-    if ($conn!=NULL){     
-        /* crear una sentencia preparada */
-        if ($stmt = $conn->prepare("UPDATE clientes SET apellido = ? , nombre = ? WHERE email= ? AND password=?")) {
-            /* ligar parámetros para marcadores */
-            $stmt->bind_param('ssss',$apellido,$nombre,$email,$password);
-            /* ejecutar la consulta */
-            $stmt->execute();
-            /* obtener la cantidad de filas afectadas en la inserción */
-            $filasAfectadas=$stmt->affected_rows;
-            /* cerrar sentencia */
-            $stmt->close();
+
+    if ($conn != NULL) {
+        // Iniciar una transacción para garantizar la consistencia de ambas actualizaciones
+        $conn->begin_transaction();
+
+        try {
+            // Actualizar datos en la tabla clientes si se solicita
+            if ($actualizarClientes) {
+                $stmtClientes = $conn->prepare("UPDATE clientes SET apellido = ?, nombre = ? WHERE email = ?");
+                $stmtClientes->bind_param('sss', $apellido, $nombre, $email);
+                $stmtClientes->execute();
+                $filasAfectadasClientes = $stmtClientes->affected_rows;
+                $stmtClientes->close();
+            } else {
+                $filasAfectadasClientes = 0; // No se intentó actualizar clientes
+            }
+
+            // Actualizar datos en la tabla envios si se solicita
+            if ($actualizarEnvios) {
+                $stmtEnvios = $conn->prepare("UPDATE envios SET direccion = ?, altura = ?, barrio = ?, piso = ? WHERE id = (SELECT envio_fk FROM clientes WHERE email = ?)");
+                $stmtEnvios->bind_param('sssss', $direccion, $altura, $barrio, $piso, $email);
+                $stmtEnvios->execute();
+                $filasAfectadasEnvios = $stmtEnvios->affected_rows;
+                $stmtEnvios->close();
+            } else {
+                $filasAfectadasEnvios = 0; // No se intentó actualizar envíos
+            }
+
+            // Confirmar la transacción si al menos una de las actualizaciones fue exitosa
+            if ($filasAfectadasClientes > 0 || $filasAfectadasEnvios > 0) {
+                $conn->commit();
+                $filasAfectadas = $filasAfectadasClientes + $filasAfectadasEnvios;
+            } else {
+                // Revertir la transacción si nada se actualizó
+                $conn->rollback();
+            }
+
+        } catch (Exception $e) {
+            // Manejar cualquier excepción que pueda ocurrir durante la transacción
+            $conn->rollback();
+            // Puedes agregar aquí el código para manejar la excepción, como loggearla o mostrar un mensaje al usuario
+            echo "Error: " . $e->getMessage();
         }
     }
+
     return $filasAfectadas;
 }
+
 
 
 function traerCategoriasHTML() {
@@ -179,7 +215,7 @@ function traerCategoriasHTML() {
         $imagen = $row['imagen'];
         $id = $row['id'];
         $html .= '<div class="col-12 col-md-4 p-5 mt-3">';
-        $html .= '<a href="shop.php?id=' . $id . '"><img src="/uploads/' . $imagen . '" justify-content:center;width=200px;height=200px></a>';
+        $html .= '<a href="categoria.php?id=' . $id . '"><img src="/uploads/' . $imagen . '" justify-content:center;width=200px;height=200px></a>';
         $html .= '<h5 class="text-center mt-3 mb-3">' . $categoria . '</h5>';
         $html .= '</div>';
     }
@@ -238,7 +274,7 @@ function traerProductosHTML($tipo = "default") {
     $html = "";
     foreach ($data as $row) { 
         $precio = $row['precio_lista']; 
-        $nombre = $row['nombre'];
+        $nombre = $row['producto'];
         $descripcion = $row['descripcion'];
         $imagen = $row['imagen'];
         $id = $row['id'];
@@ -316,7 +352,10 @@ function obtenerDetalleProducto($productoID) {
     if ($conn === NULL) {
         return NULL;
     }
-    $sql = "SELECT * FROM productos WHERE id = ?";
+    $sql = "SELECT productos.*, categorias.nombre
+                FROM productos
+                INNER JOIN categorias ON categorias.id = productos.categoria_fk
+                WHERE productos.id = ?";
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         return NULL;
@@ -332,6 +371,7 @@ function obtenerDetalleProducto($productoID) {
     cerrarBDConexion($conn);
     return $producto;
 }
+
 
 
 function obtenerDetalleCategoria($categoriaID) {
@@ -359,26 +399,37 @@ function obtenerDetalleCategoria($categoriaID) {
 
 function obtenerProductosCarrito($usuarioID) {
     $conn = conectarBDUsuario();
+
     if ($conn === NULL) {
         return NULL;
     }
-    $sql = "SELECT productos.id, productos.nombre, productos.imagen, productos.precio_lista, productos.descuento, pedidos.cantidad_prod
-    FROM productos
-    INNER JOIN pedidos ON productos.id = pedidos.producto_fk
-    WHERE pedidos.cliente_fk = ? AND pedidos.estado = 'pendiente'";
+
+    $sql = "SELECT pedidos.id as pedido_id, productos.id, productos.producto, productos.imagen, productos.precio_lista, productos.descuento, pedidos.cantidad_prod
+            FROM productos
+            INNER JOIN pedidos ON productos.id = pedidos.producto_fk
+            WHERE pedidos.cliente_fk = ? AND pedidos.estado = 'pendiente'";
+
     $stmt = $conn->prepare($sql);
+
     if (!$stmt) {
-        return NULL;
-    }
-    $stmt->bind_param("i", $usuarioID);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows === 0) {
         cerrarBDConexion($conn);
         return NULL;
     }
+
+    $stmt->bind_param("i", $usuarioID);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    if (!$result) {
+        cerrarBDConexion($conn);
+        return NULL;
+    }
+
     $productosCarrito = $result->fetch_all(MYSQLI_ASSOC);
+
     cerrarBDConexion($conn);
+
     return $productosCarrito;
 }
 
@@ -443,22 +494,38 @@ function insertarNuevoProducto($categoriaID, $nombre, $imagen, $descripcion, $pr
 
 
 function agregarProductoAlCarrito($usuarioID, $productoID, $precio) {
-    $conn = conectarBDUsuario(); // Ajusta según tu función de conexión
+    $conn = conectarBDUsuario(); // Adjust according to your connection function
     if ($conn === NULL) {
         return false;
     }
-    // Puedes realizar validaciones adicionales aquí antes de ejecutar la consulta
-    $sql = "INSERT INTO pedidos (cliente_fk, producto_fk, precio_venta, cantidad_prod) VALUES (?, ?, ?, 1)";
+
+    // Prepare the SQL statement
+    $sql = "INSERT INTO pedidos (cliente_fk, producto_fk, precio_venta, estado, cantidad_prod) VALUES (?, ?, ?, 'pendiente', 1)";
     $stmt = $conn->prepare($sql);
+
+    // Check for errors during preparation
     if (!$stmt) {
         cerrarBDConexion($conn);
         return false;
     }
-    $stmt->bind_param("iii", $usuarioID, $productoID, $precio);
+
+    // Bind parameters
+    $stmt->bind_param("iis", $usuarioID, $productoID, $precio);
+
+    // Execute the statement and check for errors
     $resultado = $stmt->execute();
+
+    // Check for errors during execution
+    if (!$resultado) {
+        cerrarBDConexion($conn);
+        return false;
+    }
+
+    // Close the connection and return the result
     cerrarBDConexion($conn);
     return $resultado;
 }
+
 
 
 // Traer solo traerSoloCategorias
@@ -489,7 +556,9 @@ function traerVentas() {
         return "";
     }
     // Consultar productos
-    $sql = "SELECT * FROM pedidos";
+    $sql = "SELECT * FROM pedidos
+            JOIN clientes ON pedidos.cliente_fk = clientes.id
+            JOIN productos ON pedidos.producto_fk = productos.id";
     $prods = $conn->prepare($sql);
     if (!$prods) {
         return "";
@@ -506,4 +575,170 @@ function traerVentas() {
     return $data;
 }
 
+function buscarPedidosUsuario($usuarioEmail) {
+    // Conectar a la base de datos
+    $conn = conectarBDUsuario();
+
+    // Verificar la conexión
+    if ($conn === NULL) {
+        return []; // Devolver un array vacío en caso de fallo en la conexión
+    }
+
+    try {
+        // Obtener el ID del usuario utilizando su email
+        $stmtUsuario = $conn->prepare("SELECT id FROM clientes WHERE email = ?");
+        $stmtUsuario->bind_param('s', $usuarioEmail);
+        $stmtUsuario->execute();
+        $resultUsuario = $stmtUsuario->get_result();
+
+        if (!$resultUsuario) {
+            throw new Exception("Error al obtener el ID del usuario: " . $stmtUsuario->error);
+        }
+
+        $usuario = $resultUsuario->fetch_assoc();
+
+        // Verificar si se encontró el usuario
+        if (!$usuario) {
+            throw new Exception("Usuario no encontrado con el email: $usuarioEmail");
+        }
+
+        // Obtener el ID del usuario
+        $usuarioId = $usuario['id'];
+
+        // Consultar los pedidos del usuario
+        $sql = "SELECT pedidos.*, productos.* FROM pedidos
+                JOIN productos ON pedidos.producto_fk = productos.id
+                WHERE pedidos.cliente_fk = ?";
+
+        $stmtPedidos = $conn->prepare($sql);
+
+        // Verificar si la preparación de la consulta fue exitosa
+        if (!$stmtPedidos) {
+            throw new Exception("Error en la preparación de la consulta: " . $conn->error);
+        }
+
+        $stmtPedidos->bind_param('i', $usuarioId);
+        $stmtPedidos->execute();
+        $resultPedidos = $stmtPedidos->get_result();
+
+        // Verificar si la ejecución de la consulta fue exitosa
+        if (!$resultPedidos) {
+            throw new Exception("Error en la ejecución de la consulta: " . $stmtPedidos->error);
+        }
+
+        // Obtener los datos de los pedidos
+        $dataPedidos = $resultPedidos->fetch_all(MYSQLI_ASSOC);
+
+        // Cerrar la consulta y liberar los recursos
+        $stmtPedidos->close();
+
+        // Devolver los datos obtenidos
+        return $dataPedidos;
+
+    } catch (Exception $e) {
+        // Manejar cualquier excepción que pueda ocurrir durante la ejecución de la función
+        cerrarBDConexion($conn); // Asegurarse de cerrar la conexión en caso de error
+        error_log("Error en la función buscarPedidosUsuario: " . $e->getMessage());
+        return [];
+    }
+}
+
+
+
+
+
+function obtenerProductosPorCategoria($conn, $categoriaId) {
+    $productos = [];
+
+    // Verificar la conexión a la base de datos
+    if ($conn !== NULL) {
+        try {
+            // Consultar productos por categoría
+            $sql = "SELECT * FROM productos WHERE categoria_fk = ?";
+            $stmt = $conn->prepare($sql);
+
+            // Verificar si la preparación de la consulta fue exitosa
+            if ($stmt) {
+                // Bind parameters
+                $stmt->bind_param('i', $categoriaId);
+
+                // Ejecutar la consulta
+                $stmt->execute();
+
+                // Obtener el resultado
+                $result = $stmt->get_result();
+
+                // Verificar si se obtuvieron resultados
+                if ($result) {
+                    // Obtener los productos
+                    $productos = $result->fetch_all(MYSQLI_ASSOC);
+                }
+
+                // Cerrar el statement
+                $stmt->close();
+            } else {
+                // Handle the error, e.g., log the error
+                error_log("Error preparing statement: " . $conn->error);
+            }
+        } catch (Exception $e) {
+            // Handle any exceptions that may occur
+            error_log("Error: " . $e->getMessage());
+        }
+    }
+
+    return $productos;
+}
+
+
+
+
+
+
+function mostrarContenidoSegunCategoria($productosPorCategoria) {
+    $productosHTML = traerProductosHTML("detalle");
+    
+    // Verificar si la variable $productosPorCategoria está definida y no está vacía
+    if (isset($productosPorCategoria) && !empty($productosPorCategoria)) {
+        // Mostrar productos por categoría
+        $html = "";
+        foreach ($productosPorCategoria as $producto) {
+            // Aquí debes adaptar el código según la estructura real de tus productos
+            $precio = $producto['precio_lista']; 
+            $nombre = $producto['producto'];
+            $descripcion = $producto['descripcion'];
+            $imagen = $producto['imagen'];
+            $id = $producto['id'];
+            
+            // HTML para vista detallada
+            $html .= '<div class="col-md-4">';
+            $html .= '<a href="shop-single.php?id=' . $id . '" class="text-decoration-none">'; // Agregado
+            $html .= '<div class="card mb-4 product-wap rounded-0">';
+            $html .= '<div class="card rounded-0">';
+            $html .= '<img class="card-img rounded-0 img-fluid" src="/uploads/' . $imagen . '">';
+            $html .= '<div class="card-img-overlay rounded-0 product-overlay d-flex align-items-center justify-content-center">';
+            $html .= '</div>';
+            $html .= '<div class="card-body">';
+            $html .= '<a href="shop-single.php?id=' . $id . '" class="h3 text-center">' . $nombre . '</a>'; // Modificado
+            $html .= '<ul class="w-100 list-unstyled d-flex justify-content-between mb-0">';
+            $html .= '</ul>';
+            $html .= '<p class="text-right mb-0">$' . $precio . '</p>';
+            $html .= '</div>';
+            $html .= '</div>';
+            $html .= '</div>';
+            $html .= '</a>'; // Agregado
+            $html .= '</div>';
+        }
+        echo $html;
+    } else {
+        // Mostrar nombres de categorías o HTML de productos si no hay productos por categoría
+        echo $productosHTML;
+    }
+}
+
+
+
+
+
+
+ 
 ?>

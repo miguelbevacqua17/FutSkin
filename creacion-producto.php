@@ -101,32 +101,24 @@ https://templatemo.com/tm-559-zay-shop
                             </li>                            
 
                             <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
                                 </li>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/carrito.php">Carrito</a>
                                 </li>
-
-                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>
-                                
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/crecion-producto.php">Nuevo producto</a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/admin.php">Vista Administrador</a>
-                                </li>
-
-                            <?php } else { ?>
-
-                            <?php foreach ($nombresCategorias as $categoria) { ?>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#"><?php echo $categoria; ?></a>
-                                </li>
-                            <?php } } ?>
+                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
+                            <li class="nav-item">
+                                <a class="nav-link" href="/creacion-producto.php">Nuevo producto</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin.php">Vista Administrador</a>                        
+                            </li>
+                            
+                                <?php } else { ?>
+                                    <li class="nav-item"></li>
+                                    <li class="nav-item"></li>
+                                <?php } ?>
 
                         </ul>
 

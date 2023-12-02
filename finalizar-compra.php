@@ -1,3 +1,74 @@
+<?php
+include "sesion.php";
+include "bd.php";
+
+$conn = conectarBDUsuario();
+
+// Verificar si la sesión está iniciada y la clave 'email' está presente
+if (isset($_SESSION['email'])) {
+    $sesion = $_SESSION['email'];
+    // Verificar si la consulta de datos del usuario es exitosa
+    $usuario = consultaDatosUsuario($conn, $sesion); 
+    if ($usuario !== null) {
+        $usuarioId = $usuario['id'];
+        $nombre = $usuario['nombre'];
+        $rol = $usuario['rol'];
+        $direccion = $usuario['direccion'];
+        $altura = $usuario['altura'];
+        echo "User Email: $sesion // ";
+        echo "User Name: $nombre // ";
+        echo "User Role: $rol // ";
+        echo "Dirección de envío: $direccion // ";
+        echo "Altura: $altura";
+    } else {
+        echo "Error al obtener datos del usuario.";
+    }
+} else {
+    echo "No hay sesión iniciada.";
+}
+
+$sesionUsuario = controlarSesion();
+
+// Variables para el contenido de los input
+$email = "no data";
+$apellido = "no data";
+$nombre = "no data";
+$direccion = "no data";
+$altura = "no data";
+$piso = "no data";
+$barrio = "no data";
+
+if ($sesionUsuario != NULL) {
+    // Abrir conexión a base de datos, en este caso 'bd_usuario'
+    $conn = conectarBDUsuario();
+    // Ejecutar consulta
+    $resultado = consultaDatosUsuario($conn, $sesionUsuario);
+    // Cerrar conexión '$conn' de base de datos
+    cerrarBDConexion($conn);
+
+    if ($resultado != NULL) {
+        // Obtener datos del usuario
+        $email = $resultado['email'];
+        $apellido = $resultado['apellido'];
+        $nombre = $resultado['nombre'];
+        $direccion = $resultado['direccion'];   
+        $altura = $resultado['altura'];   
+        $piso = $resultado['piso'];   
+        $barrio = $resultado['barrio'];      
+        $id = $usuario['id'];           
+    }
+}
+
+
+
+ $id = $usuario['id'];
+
+ $productosCarrito = obtenerProductosCarrito($id);
+ $precioTotal = calcularPrecioTotal($productosCarrito);
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -66,32 +137,24 @@ https://templatemo.com/tm-559-zay-shop
                             </li>                            
 
                             <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
                                 </li>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/carrito.php">Carrito</a>
                                 </li>
-
-                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>
-                                
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/crecion-producto.php">Nuevo producto</a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/admin.php">Vista Administrador</a>
-                                </li>
-
-                            <?php } else { ?>
-
-                            <?php foreach ($nombresCategorias as $categoria) { ?>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#"><?php echo $categoria; ?></a>
-                                </li>
-                            <?php } } ?>
+                            <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
+                            <li class="nav-item">
+                                <a class="nav-link" href="/creacion-producto.php">Nuevo producto</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin.php">Vista Administrador</a>                        
+                            </li>
+                            
+                                <?php } else { ?>
+                                    <li class="nav-item"></li>
+                                    <li class="nav-item"></li>
+                                <?php } ?>
 
                         </ul>
 
@@ -167,22 +230,22 @@ https://templatemo.com/tm-559-zay-shop
                 <div class="row">
                     <div class="form-group col-md-6 mb-3">
                         <label for="inputname">Dirección de entrega</label>
-                        <input type="text" class="form-control mt-1" id="name" name="name" placeholder="Dirección de entrega">
+                        <input type="text" class="form-control mt-1" id="name" name="name" placeholder="Dirección de entrega" required value="<?php echo $direccion?>">
                     </div>
                     
                     <div class="form-group col-md-6 mb-3">
                         <label for="inputemail">Altura de la calle</label>
-                        <input type="email" class="form-control mt-1" id="precio" name="precio" placeholder="Altura de la calle">
+                        <input type="text" class="form-control mt-1" id="precio" name="precio" placeholder="Altura de la calle" required value="<?php echo $altura?>">
                     </div>
 
                     <div class="form-group col-md-6 mb-3">
                         <label for="inputname">Piso / departamento</label>
-                        <input type="text" class="form-control mt-1" id="name" name="name" placeholder="Piso / departamento">
+                        <input type="text" class="form-control mt-1" id="name" name="name" placeholder="Piso / departamento" required value="<?php echo $piso?>">
                     </div>
                     
                     <div class="form-group col-md-6 mb-3">
                         <label for="inputemail">Barrio / Localidad</label>
-                        <input type="email" class="form-control mt-1" id="precio" name="precio" placeholder="Barrio / Localidad">
+                        <input type="text" class="form-control mt-1" id="precio" name="precio" placeholder="Barrio / Localidad" required value="<?php echo $barrio?>">
                     </div>
 
                     <div class="mb-3">
@@ -191,7 +254,7 @@ https://templatemo.com/tm-559-zay-shop
                     </div>
 
                     <div class="form-group col-md-6 mb-3">
-                        <label for="inputemail">Total a pagar: $$$$</label>
+                        <label for="text">Total a pagar: $<?php echo $precioTotal?></label>
                     </div>
 
                     
@@ -201,7 +264,11 @@ https://templatemo.com/tm-559-zay-shop
 
                 <div class="row">
                     <div class="col text-end mt-2">
-                        <button type="submit" class="btn btn-success btn-lg px-3">Confirmar la compra</button>
+                    <form action="venta-pedido.php" method="POST">
+                        <input type="hidden" name="usuarioId" value="<?php echo $usuario['id']; ?>">
+                        <button type="submit" class="ventaPedidoBtn" name="ventaPedidoBtn" class="btn btn-lg btn-primary mt-2" style="background-color: #198754; color: white;">Finalizar compra</button>
+                    </form>
+
                     </div>
                 </div>
             </form>
