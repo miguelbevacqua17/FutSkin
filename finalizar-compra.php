@@ -17,6 +17,7 @@ if (isset($_SESSION['email'])) {
         $altura = $usuario['altura'];
         echo "User Email: $sesion // ";
         echo "User Name: $nombre // ";
+        echo "User id: $usuarioId // ";
         echo "User Role: $rol // ";
         echo "Dirección de envío: $direccion // ";
         echo "Altura: $altura";
@@ -55,13 +56,14 @@ if ($sesionUsuario != NULL) {
         $altura = $resultado['altura'];   
         $piso = $resultado['piso'];   
         $barrio = $resultado['barrio'];      
-        $id = $usuario['id'];           
+        $usuarioId = $resultado['id'];           
     }
 }
 
 
 
  $id = $usuario['id'];
+
 
  $productosCarrito = obtenerProductosCarrito($id);
  $precioTotal = calcularPrecioTotal($productosCarrito);
@@ -226,52 +228,86 @@ https://templatemo.com/tm-559-zay-shop
     <!-- Start Contact -->
     <div class="container py-5">
         <div class="row py-5">
-            <form class="col-md-9 m-auto" method="post" role="form">
-                <div class="row">
-                    <div class="form-group col-md-6 mb-3">
-                        <label for="inputname">Dirección de entrega</label>
-                        <input type="text" class="form-control mt-1" id="name" name="name" placeholder="Dirección de entrega" required value="<?php echo $direccion?>">
-                    </div>
-                    
-                    <div class="form-group col-md-6 mb-3">
-                        <label for="inputemail">Altura de la calle</label>
-                        <input type="text" class="form-control mt-1" id="precio" name="precio" placeholder="Altura de la calle" required value="<?php echo $altura?>">
-                    </div>
+        <form class="col-md-9 m-auto" method="post" action="venta-pedido.php" role="form">
+            <div class="row">
 
-                    <div class="form-group col-md-6 mb-3">
-                        <label for="inputname">Piso / departamento</label>
-                        <input type="text" class="form-control mt-1" id="name" name="name" placeholder="Piso / departamento" required value="<?php echo $piso?>">
-                    </div>
-                    
-                    <div class="form-group col-md-6 mb-3">
-                        <label for="inputemail">Barrio / Localidad</label>
-                        <input type="text" class="form-control mt-1" id="precio" name="precio" placeholder="Barrio / Localidad" required value="<?php echo $barrio?>">
-                    </div>
+            <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered m-0">
+                <thead>
+                  <tr>
+                    <!-- Set columns width -->
+                    <th class="text-center py-3 px-4" style="min-width: 400px;">Producto</th>
+                    <th class="text-right py-3 px-4" style="width: 200px;">ID pedido</th>
+                    <th class="text-right py-3 px-4" style="width: 200px;">Precio</th>
+                    <th class="text-center py-3 px-4" style="width: 200px;">Cantidad</th>
+                    <th class="text-right py-3 px-4" style="width: 200px;">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+        
+                <?php
+                        // Verificar si hay productos en el carrito antes de iterar
+                        if (!empty($productosCarrito)) {
+                        // Iterar sobre los productos del carrito y generar filas de la tabla
+                        foreach ($productosCarrito as $producto) {
+                            if (array_key_exists('cantidad_prod', $producto)) {
+                                // Acceder a la cantidad si existe
+                                $cantidad = $producto['cantidad_prod'];
+                                // Resto del código para mostrar la cantidad...
+                            } else {
+                                // Manejar el caso en el que 'cantidad_prod' no está definido
+                                echo "La clave 'cantidad_prod' no está definida para este producto.";
+                            }
+                            ?>
 
-                    <div class="mb-3">
-                        <label for="inputsubject">Aclaraciones</label>
-                        <input type="text" class="form-control mt-1" id="descripcion" name="descripcion" placeholder="Aclaraciones">
-                    </div>
 
-                    <div class="form-group col-md-6 mb-3">
-                        <label for="text">Total a pagar: $<?php echo $precioTotal?></label>
-                    </div>
+                    <tr>
+                        <td class="p-4">
+                            <div class="media align-items-center">
+                                <img src="/uploads/<?php echo $producto['imagen']; ?>" class="d-block ui-w-40 ui-bordered mr-4" alt="" height="300" width="300">
+                                <div class="media-body">
+                                    <a class="d-block text-dark"><?php echo $producto['producto']; ?></a>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-right font-weight-semibold align-middle p-4"><?php echo $producto['pedido_id']; ?></td>
+                        <td class="text-right font-weight-semibold align-middle p-4">$<?php echo $producto['precio_lista']; ?></td>
+                        <td class="text-right font-weight-semibold align-middle p-4"><?php echo $producto['cantidad_prod']; ?></td>
+                        <td class="text-right font-weight-semibold align-middle p-4">$<?php echo $producto['precio_lista'] * $producto['cantidad_prod']; ?></td>
+                        <td class="text-center align-middle px-0">
+                        </td>
+                    </tr>
 
-                    
-                </div>
+
                 
+                <?php
+                            }
+                        } else {
+                            // Mensaje si no hay productos en el carrito
+                            echo '<tr><td colspan="5" class="text-center">No hay productos en el carrito.</td></tr>';
+                        }
+                        ?>
+
+                </tbody>
+              </table>
+            </div>
+            <div class="form-group col-md-12 text-center mb-4 mt-4">
+    <label class="h3" for="text">Total a pagar: $<?php echo $precioTotal?></label>
+</div>
+
+
+                </div>
                 
 
                 <div class="row">
                     <div class="col text-end mt-2">
-                    <form action="venta-pedido.php" method="POST">
-                        <input type="hidden" name="usuarioId" value="<?php echo $usuario['id']; ?>">
-                        <button type="submit" class="ventaPedidoBtn" name="ventaPedidoBtn" class="btn btn-lg btn-primary mt-2" style="background-color: #198754; color: white;">Finalizar compra</button>
-                    </form>
-
+                        <input type="hidden" name="usuarioId" value="<?php echo $usuarioId ?>">
+                        <button type="submit" name="ventaPedidoBtn" class="btn btn-lg btn-primary mt-2" style="background-color: #198754; color: white;">Finalizar compra</button>
                     </div>
                 </div>
-            </form>
+            </div>
+        </form>
         </div>
     </div>
     <!-- End Contact -->

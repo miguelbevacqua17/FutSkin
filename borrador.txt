@@ -1,6 +1,4 @@
 <?php
-include "bd.php";
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ventaPedidoBtn'])) {
     // Include your database connection logic
     require_once 'bd.php';
@@ -40,8 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ventaPedidoBtn'])) {
     // Handle changing the estado to 'venta'
     $usuarioId = $_POST['usuarioId'];
     if (ventaPedido($usuarioId)) {
-        // Estado changed successfully
-        header('Location: gracias.html'); // Redirect to thank you page
+        // Estado changed successfully, redirect to thank you page
+        header('Location: gracias.html');
         exit();
     } else {
         // Handle change failure (if needed)
