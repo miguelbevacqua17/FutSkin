@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminarPedidoBtn']))
 
         $estadoEliminado = 'eliminado';
 
-        $sql = "UPDATE pedidos SET estado = ? WHERE cliente_fk = ? AND estado = 'pendiente'";
+        $sql = "UPDATE pedidos SET estado = ? WHERE id = ? AND estado = 'pendiente'";
         $stmt = $conn->prepare($sql);
 
         if ($stmt) {
