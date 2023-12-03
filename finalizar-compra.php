@@ -10,7 +10,7 @@ if (isset($_SESSION['email'])) {
     // Verificar si la consulta de datos del usuario es exitosa
     $usuario = consultaDatosUsuario($conn, $sesion); 
     if ($usuario !== null) {
-        $usuarioId = $usuario['id'];
+        $usuarioId = $usuario['id_cliente'];
         $nombre = $usuario['nombre'];
         $rol = $usuario['rol'];
         $direccion = $usuario['direccion'];

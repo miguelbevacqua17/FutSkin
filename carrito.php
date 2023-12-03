@@ -14,12 +14,13 @@
       if ($usuario !== null) {
           $nombre = $usuario['nombre'];
           $rol = $usuario['rol'];
-          $id = $usuario['id'];
+          $id = $usuario['id_cliente'];
   
           echo "User Email: $sesion // ";
           echo "User Name: $nombre // ";
           echo "User ID: $id // ";
           echo "User Role: $rol";
+
 
           // Resto del código que usa $nombre y $rol
       } else {
@@ -28,8 +29,6 @@
   } else {
       echo "No hay sesión iniciada.";
   }
-
-  $id = $usuario['id'];
 
   $productosCarrito = obtenerProductosCarrito($id);
   $precioTotal = calcularPrecioTotal($productosCarrito);

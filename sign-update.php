@@ -16,9 +16,11 @@ if (isset($_SESSION['email'])) {
         $altura = $usuario['altura'];
         $piso = $usuario['piso'];
         $barrio = $usuario['barrio'];
+        $id = $usuario['id_cliente'];
 
         echo "User Email: $sesion // ";
         echo "User Name: $nombre // ";
+        echo "User Id: $id // ";
         echo "User Role: $rol // ";
         echo "Dirección de envío: $direccion // ";
         echo "Altura: $altura // ";

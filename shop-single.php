@@ -12,9 +12,11 @@
       if ($usuario !== null) {
           $nombre = $usuario['nombre'];
           $rol = $usuario['rol'];
-          $usuarioID = $usuario['id'];
+          $usuarioID = $usuario['id_cliente'];
+
           echo "User Email: $sesion // ";
           echo "User Name: $nombre // ";
+          echo "User Id: $usuarioID // ";
           echo "User Role: $rol";
           // Resto del código que usa $nombre y $rol
       } else {
@@ -50,7 +52,7 @@ if ($producto === NULL) {
 
 
 $precio = $producto['precio_lista'];
-
+$usuarioID = $usuario['id_cliente'];
 
 $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
 // Resto del código HTML para mostrar la información del producto

@@ -2,6 +2,11 @@
 ###################################################################################
 ## Seteo y Configuracion inicial
 //directorio donde se suben los archivos. Debe estar creado previamente
+// hay que pasar por terminal para que funciona: 
+// chmod 777 uploads
+// chmod 755 uploads
+
+
 
 include "sesion.php";
 include "bd.php";
@@ -9,7 +14,7 @@ include "bd.php";
 $dirUplod="uploads/";
 
 // extensiones válidas .. agregar aqui si flta alguna
-$extValImagen     = ["jpg","png","jpeg","gif","bmp","svg"]; 
+$extValImagen     = ["jpg","png","jpeg","gif","bmp","svg", "webp"]; 
 $extValDocumento  = ["pdf","doc","docx","xls","xlsx","txt","csv","docm","dot","dotx","ppt","pptx"]; 
 $extValAudio      = ["wav","aiff","mp3","mpga","mp4","wave", "bwf","wma","mid","midi"]; 
 $extValVideo      = ["mp4","m4v","avi","mkv","flv","mov","mpeg","mpg","wmv","asf"];
@@ -74,22 +79,22 @@ function comprobacionPrevia($target_dir,$file_name){
     return $checkOK;
 } 
 
-function transferirArchivo($target_dir,$file_name){
-    // tranfiere el archivo al servidor, al directorio especificdo. 
-    // El archivo se encuentra en el directorio temporal del servidor y lo transfiere al directorio especificdo
+function transferirArchivo($target_dir, $file_name, $uploaded_file){
+    // transfiere el archivo al servidor, al directorio especificado. 
+    // El archivo se encuentra en el directorio temporal del servidor y lo transfiere al directorio especificado
     $target_file = $target_dir . $file_name;   
     $uploadOk = 1;
     
-    if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-        $msj= "El archivo '". htmlspecialchars( basename( $_FILES["fileToUpload"]["name"])). "' ha sido subido con exito.";
-        $msj=$msj." Y se almacenó bajo el nombre único: '".$file_name."'.";
-        $_SESSION['message']="OK: ".$msj;
-        $_SESSION['error']=FALSE;
+    if (move_uploaded_file($uploaded_file["tmp_name"], $target_file)) {
+        $msj = "El archivo '".htmlspecialchars(basename($uploaded_file["name"]))."' ha sido subido con éxito.";
+        $msj = $msj." Y se almacenó bajo el nombre único: '".$file_name."'.";
+        $_SESSION['message'] = "OK: ".$msj;
+        $_SESSION['error'] = FALSE;
 
     } else {
-        $msj= "Hubo un error al cargar el archivo.";
-        $_SESSION['message']="ERROR: ".$msj;
-        $_SESSION['error']=TRUE;
+        $msj = "Hubo un error al cargar el archivo.";
+        $_SESSION['message'] = "ERROR: ".$msj;
+        $_SESSION['error'] = TRUE;
     }
     return $uploadOk;
 }
@@ -106,33 +111,32 @@ function crearNombreUnicoArchivo($fileTypeExtension){
     }
     return $nuevo_nombre;
 }
-
-function subirArchivo($target_dir,$original_file_name){
-    // función principal, encargada de subir el archivo original_file_name al directorio target_dir
+function subirArchivo($target_dir, $uploaded_file){
+    // función principal, encargada de subir el archivo al directorio target_dir
     // retorna NULL si no pudo subir archivo
-    // retorna el arreglo arrFileName  si pudo subir con exito
+    // retorna el arreglo arrFileName  si pudo subir con éxito
     session_start();
     $arrFileName = NULL;
     $unique_file_name="";   
     
+    $original_file_name = basename($uploaded_file["name"]);
     $target_file = $target_dir . $original_file_name;   
-    $fileTypeExtension = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+    $fileTypeExtension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
    
     #chequeos
-    $checkOk = comprobacionPrevia($target_dir,$original_file_name);  
+    $checkOk = comprobacionPrevia($target_dir, $original_file_name);  
     $checkOk = $checkOk && comprobarExtension($original_file_name);
 
-    // reaaliza la transferencia si checkOk es TRUE
+    // realiza la transferencia si checkOk es TRUE
     if ($checkOk){          
         $unique_file_name = crearNombreUnicoArchivo($fileTypeExtension); // Renombra a un nombre único
-        $uploadOk = transferirArchivo($target_dir,$unique_file_name);    //  tranfiere rchivo
-        if ($uploadOk){ // si el archivo se transfirio
-            $arrFileName=array($original_file_name,$unique_file_name); // preparar variable de retorno
+        $uploadOk = transferirArchivo($target_dir, $unique_file_name, $uploaded_file); // transfiere archivo
+        if ($uploadOk){ // si el archivo se transfirió
+            $arrFileName = array($original_file_name, $unique_file_name); // preparar variable de retorno
         }
     }        
-    return $arrFileName; //retorna un arreglo con el nombre achivo original y el nuevo nombre unico de archivo.
+    return $arrFileName;
 }
-
 
 
 
@@ -141,12 +145,14 @@ function main(){
 
     try {
         //**** Forma de llamada para subir un archivo */
-        $original_file_name = basename($_FILES["fileToUpload"]["name"]);
-        subirArchivo($dirUplod, $original_file_name);
+        $uploaded_files = subirArchivo($dirUplod, $_FILES["fileToUpload"]);
         //****----------------------------------------*/
 
         // Verifica si el formulario se ha enviado
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if ($_SERVER["REQUEST_METHOD"] == "POST" && $uploaded_files) {
+            list($original_file_name, $unique_file_name) = $uploaded_files;
+
+
             // Recoge los datos del formulario
             $nombre = $_POST["nombre"];
             $precioLista = $_POST["precio"];
@@ -154,7 +160,7 @@ function main(){
             $descuento = $_POST["descuento"];
             $stock = $_POST["stock"];
             $descripcion = $_POST["descripcion"];
-            $imagen = $original_file_name; // Utiliza el nombre del archivo subido
+            $imagen = $unique_file_name; // Utiliza el nuevo nombre del archivo
 
             $conn = conectarBDUsuario();
 

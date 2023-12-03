@@ -14,9 +14,11 @@
       if ($usuario !== null) {
           $nombre = $usuario['nombre'];
           $rol = $usuario['rol'];
+          $id = $usuario['id_cliente'];
   
           echo "User Email: $sesion // ";
           echo "User Name: $nombre // ";
+          echo "User Id: $id // ";
           echo "User Role: $rol";
 
           // Resto del código que usa $nombre y $rol

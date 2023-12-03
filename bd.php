@@ -153,16 +153,37 @@ function actualizarUsuario($conn, $email, $apellido, $nombre, $direccion, $altur
                 $filasAfectadasClientes = 0; // No se intentó actualizar clientes
             }
 
-            // Actualizar datos en la tabla envios si se solicita
-            if ($actualizarEnvios) {
+            // Verificar si hay un registro existente en la tabla envios
+            $stmtCheckEnvio = $conn->prepare("SELECT id FROM envios WHERE id = (SELECT envio_fk FROM clientes WHERE email = ?)");
+            $stmtCheckEnvio->bind_param('s', $email);
+            $stmtCheckEnvio->execute();
+            $stmtCheckEnvio->store_result();
+            $numRows = $stmtCheckEnvio->num_rows;
+
+            if ($numRows > 0) {
+                // Existe un registro en envios, realizar la actualización
                 $stmtEnvios = $conn->prepare("UPDATE envios SET direccion = ?, altura = ?, barrio = ?, piso = ? WHERE id = (SELECT envio_fk FROM clientes WHERE email = ?)");
                 $stmtEnvios->bind_param('sssss', $direccion, $altura, $barrio, $piso, $email);
                 $stmtEnvios->execute();
                 $filasAfectadasEnvios = $stmtEnvios->affected_rows;
                 $stmtEnvios->close();
             } else {
-                $filasAfectadasEnvios = 0; // No se intentó actualizar envíos
+                // No existe un registro en envios, crear uno nuevo
+                $stmtNuevoEnvio = $conn->prepare("INSERT INTO envios (direccion, altura, barrio, piso) VALUES (?, ?, ?, ?)");
+                $stmtNuevoEnvio->bind_param('ssss', $direccion, $altura, $barrio, $piso);
+                $stmtNuevoEnvio->execute();
+                $idNuevoEnvio = $stmtNuevoEnvio->insert_id;
+                $stmtNuevoEnvio->close();
+
+                // Actualizar el campo envio_fk en la tabla clientes
+                $stmtUpdateClientes = $conn->prepare("UPDATE clientes SET envio_fk = ? WHERE email = ?");
+                $stmtUpdateClientes->bind_param('ss', $idNuevoEnvio, $email);
+                $stmtUpdateClientes->execute();
+                $filasAfectadasEnvios = $stmtUpdateClientes->affected_rows;
+                $stmtUpdateClientes->close();
             }
+
+            $stmtCheckEnvio->close();
 
             // Confirmar la transacción si al menos una de las actualizaciones fue exitosa
             if ($filasAfectadasClientes > 0 || $filasAfectadasEnvios > 0) {
@@ -214,10 +235,14 @@ function traerCategoriasHTML() {
         $descripcion_categoria = $row['descripcion'];
         $imagen = $row['imagen'];
         $id = $row['id'];
-        $html .= '<div class="col-12 col-md-4 p-5 mt-3">';
-        $html .= '<a href="categoria.php?id=' . $id . '"><img src="/uploads/' . $imagen . '" justify-content:center;width=200px;height=200px></a>';
-        $html .= '<h5 class="text-center mt-3 mb-3">' . $categoria . '</h5>';
+        
+        $html .= '<div class="col-12 col-md-4 p-5 mt-3 text-center">'; // Agregado el estilo "text-center"
+        $html .= '<a href="categoria.php?id=' . $id . '">';
+        $html .= '<img src="/uploads/' . $imagen . '" class="mx-auto d-block" style="width:200px; height:200px;" alt="Categoria Image">'; // Agregado el estilo "mx-auto d-block"
+        $html .= '</a>';
+        $html .= '<h5 class="mt-3 mb-3">' . $categoria . '</h5>'; // Quitado el "text-center" para centrar solo verticalmente
         $html .= '</div>';
+        
     }
     return $html;
 }
@@ -276,6 +301,8 @@ function traerProductosHTML($tipo = "default") {
         $precio = $row['precio_lista']; 
         $nombre = $row['producto'];
         $descripcion = $row['descripcion'];
+        $descripcion_corta = substr($descripcion, 0, 40);
+
         $imagen = $row['imagen'];
         $id = $row['id'];
         if ($tipo === "detalle") {
@@ -300,16 +327,16 @@ function traerProductosHTML($tipo = "default") {
         } else {
             // HTML por defecto
             $html .= '<div class="col-12 col-md-4 mb-4">';
-            $html .= '<div class="card h-100">';
+            $html .= '<div class="card h-100 d-flex flex-column">';
             $html .= '<a href="shop-single.php?id=' . $id . '" class="text-decoration-none">'; // Agregado
             $html .= '<img src="/uploads/' . $imagen . '" class="card-img-top" alt="...">';
             $html .= '</a>';
-            $html .= '<div class="card-body">';
-            $html .= '<ul class="list-unstyled d-flex justify-content-between">';
+            $html .= '<div class="card-body d-flex flex-column">';
+            $html .= '<ul class="list-unstyled d-flex justify-content-between mb-2">';
             $html .= '<li class="text-muted text-right">$' . $precio . '</li>';
             $html .= '</ul>';
             $html .= '<a href="shop-single.php?id=' . $id . '" class="h2 text-decoration-none text-dark">' . $nombre . '</a>'; // Modificado
-            $html .= '<p class="card-text">' . $descripcion . '</p>';
+            $html .= '<p class="card-text description-limit flex-grow-1">' . $descripcion_corta ."..." . '</p>';
             $html .= '<p class="text-muted"></p>';
             $html .= '</div>';
             $html .= '</div>';
@@ -479,15 +506,22 @@ function insertarNuevoProducto($categoriaID, $nombre, $imagen, $descripcion, $pr
     if ($conn === NULL) {
         return false;
     }
-    $sql = "INSERT INTO productos (categoria_fk, nombre, imagen, descripcion, precio_lista, descuento, stock, deleteable) 
+    $sql = "INSERT INTO productos (categoria_fk, producto, imagen, descripcion, precio_lista, descuento, stock, deleteable) 
             VALUES (?, ?, ?, ?, ?, ?, ?, 0)";
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         cerrarBDConexion($conn);
         return false;
     }
-    $stmt->bind_param("issdisi", $categoriaID, $nombre, $imagen, $descripcion, $precioLista, $descuento, $stock);
+    $stmt->bind_param("isssisi", $categoriaID, $nombre, $imagen, $descripcion, $precioLista, $descuento, $stock);
     $resultado = $stmt->execute();
+    // Check for errors during execution
+    if (!$resultado) {
+        cerrarBDConexion($conn);
+        return false;
+    }
+
+    // Close the connection and return the result
     cerrarBDConexion($conn);
     return $resultado;
 }
@@ -557,7 +591,7 @@ function traerVentas() {
     }
     // Consultar productos
     $sql = "SELECT * FROM pedidos
-            JOIN clientes ON pedidos.cliente_fk = clientes.id
+            JOIN clientes ON pedidos.cliente_fk = clientes.id_cliente
             JOIN productos ON pedidos.producto_fk = productos.id";
     $prods = $conn->prepare($sql);
     if (!$prods) {

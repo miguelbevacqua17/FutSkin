@@ -6,3 +6,10 @@ Custom Css
 .link-info {
     color: green;
 }
+
+.description-limit {
+    max-height: 3.6em; /* Ajusta esta altura según sea necesario */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+}

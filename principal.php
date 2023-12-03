@@ -14,10 +14,12 @@
             if ($usuario !== null) {
                 $nombre = $usuario['nombre'];
                 $rol = $usuario['rol'];
+                $id = $usuario['id_cliente'];
 
                 // Mostramos en el front los valores de las sgtes variables.
                 echo "User Email: $sesion // ";
                 echo "User Name: $nombre // ";
+                echo "User ID: $id // ";
                 echo "User Role: $rol";
 
             } else {
