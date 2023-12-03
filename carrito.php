@@ -32,6 +32,7 @@
 
   $productosCarrito = obtenerProductosCarrito($id);
   $precioTotal = calcularPrecioTotal($productosCarrito);
+  $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
 
 ?>  
 

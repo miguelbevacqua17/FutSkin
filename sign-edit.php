@@ -62,7 +62,7 @@ if ($sesionUsuario != NULL) {
 
  $ventasUsuario = buscarPedidosUsuario($_SESSION['email']);
 
-
+ $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
 ?>
 
 

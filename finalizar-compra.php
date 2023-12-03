@@ -56,17 +56,20 @@ if ($sesionUsuario != NULL) {
         $altura = $resultado['altura'];   
         $piso = $resultado['piso'];   
         $barrio = $resultado['barrio'];      
-        $usuarioId = $resultado['id'];           
+        $usuarioId = $resultado['id_cliente'];           
     }
 }
 
 
 
- $id = $usuario['id'];
-
+ $id = $usuario['id_cliente'];
+ 
+ $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
 
  $productosCarrito = obtenerProductosCarrito($id);
  $precioTotal = calcularPrecioTotal($productosCarrito);
+
+
 
 ?>
 

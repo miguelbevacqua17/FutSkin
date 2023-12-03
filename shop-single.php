@@ -54,6 +54,8 @@ if ($producto === NULL) {
 $precio = $producto['precio_lista'];
 $usuarioID = $usuario['id_cliente'];
 
+$nombresCategorias = traerColumnaTabla('nombre', 'categorias');
+
 $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
 // Resto del código HTML para mostrar la información del producto
 ?>
