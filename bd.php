@@ -620,7 +620,7 @@ function buscarPedidosUsuario($usuarioEmail) {
 
     try {
         // Obtener el ID del usuario utilizando su email
-        $stmtUsuario = $conn->prepare("SELECT id FROM clientes WHERE email = ?");
+        $stmtUsuario = $conn->prepare("SELECT id_cliente FROM clientes WHERE email = ?");
         $stmtUsuario->bind_param('s', $usuarioEmail);
         $stmtUsuario->execute();
         $resultUsuario = $stmtUsuario->get_result();
@@ -637,7 +637,7 @@ function buscarPedidosUsuario($usuarioEmail) {
         }
 
         // Obtener el ID del usuario
-        $usuarioId = $usuario['id'];
+        $usuarioId = $usuario['id_cliente'];
 
         // Consultar los pedidos del usuario
         $sql = "SELECT pedidos.*, productos.* FROM pedidos

@@ -31,6 +31,7 @@
 
 
   $categorias = obtenerCategorias();
+  $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
 
 ?>
 

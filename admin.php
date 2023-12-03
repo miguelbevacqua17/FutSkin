@@ -19,7 +19,7 @@
           echo "User Email: $sesion // ";
           echo "User Name: $nombre // ";
           echo "User Id: $id // ";
-          echo "User Role: $rol";
+          echo "User Role: $rol //";
 
           // Resto del código que usa $nombre y $rol
       } else {
@@ -63,6 +63,8 @@ $totalVentas = sumarPrecioVentas($venta);
         $contadorVentas++;
     }
 }
+
+$nombresCategorias = traerColumnaTabla('nombre', 'categorias');
 
 // Imprimir el resultado
 echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
