@@ -1,16 +1,19 @@
 <?php
+  // Incluimos el código de sesion.php y bd.php
   include "sesion.php";
   include "bd.php";
 
+  // Conectamos con la base de datos
   $conn = conectarBDUsuario();
   
-  // Verificar si la sesión está iniciada y la clave 'email' está presente
+  // Verificamos si la sesión está iniciada y la clave 'email' está presente
   if (isset($_SESSION['email'])) {
       $sesion = $_SESSION['email'];
   
-      // Verificar si la consulta de datos del usuario es exitosa
+      // Verificamos si la consulta de datos del usuario es exitosa
       $usuario = consultaDatosUsuario($conn, $sesion);
       
+      // Si la variable usuario trae datos, los declaramos en variables y las mostramos con echo
       if ($usuario !== null) {
           $nombre = $usuario['nombre'];
           $rol = $usuario['rol'];
@@ -20,8 +23,6 @@
           echo "User Name: $nombre // ";
           echo "User Id: $id // ";
           echo "User Role: $rol //";
-
-          // Resto del código que usa $nombre y $rol
       } else {
           echo "Error al obtener datos del usuario.";
       }
@@ -29,45 +30,49 @@
       echo "No hay sesión iniciada.";
   }
 
+  // En la variable $venta traemos el resultado de la funcion traerVentas()
   $venta = traerVentas();
 
+  // Hacemos una pequeña funcion para calcular la sumatoria de los precios de las ventas
   function sumarPrecioVentas($venta) {
-    $estadoDeseado = 'venta'; 
-    $totalPrecioVentas = 0;
+      $estadoDeseado = 'venta'; 
+      $totalPrecioVentas = 0;
 
-    // Iterar sobre el array de ventas
-    foreach ($venta as $ventaItem) {
-        // Verificar si existe la clave 'precio_venta' en la venta
-        if (isset($ventaItem['precio_venta']) && $ventaItem['estado'] === $estadoDeseado) {
-            // Sumar el precio_venta al total
-            $totalGanancia = $ventaItem['precio_venta']*$ventaItem['cantidad_prod'];
-            $totalPrecioVentas += $totalGanancia;
-        }
-    }
+      // Iteraramos sobre el array de ventas y sumamos las ganancias
+      foreach ($venta as $ventaItem) {
+          // Verificamos si existe la clave 'precio_venta' en la venta
+          if (isset($ventaItem['precio_venta']) && $ventaItem['estado'] === $estadoDeseado) {
+              // Sumamos el precio_venta al total
+              $totalGanancia = $ventaItem['precio_venta']*$ventaItem['cantidad_prod'];
+              $totalPrecioVentas += $totalGanancia;
+          }
+      }
+      // retornamos el resultado
+      return $totalPrecioVentas;
+  }
 
-    return $totalPrecioVentas;
-}
+  // Usamos la funcion y le damos ese valor a la variable $totalVentas
+  $totalVentas = sumarPrecioVentas($venta);
 
-// Uso de la función
-$totalVentas = sumarPrecioVentas($venta);
-
-  //contador ventas
+  // Hacemos un contador de ventas
   $estadoDeseado = 'venta'; 
   $contadorVentas = 0;
 
-  // Iterar sobre el array de ventas
-    foreach ($venta as $ventaItem) {
-    // Verificar si el estado de la venta es el deseado
-    if (isset($ventaItem['estado']) && $ventaItem['estado'] === $estadoDeseado) {
-        // Incrementar el contador
-        $contadorVentas++;
-    }
-}
+  // Iteraramos sobre el array de ventas
+  foreach ($venta as $ventaItem) {
+      // Verificamos si el estado de la venta es el deseado ('venta')
+      if (isset($ventaItem['estado']) && $ventaItem['estado'] === $estadoDeseado) {
+          // Incrementamos el contador
+          $contadorVentas++;
+      }
+  }
 
-$nombresCategorias = traerColumnaTabla('nombre', 'categorias');
+  // Imprimimos el resultado
+  echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
 
-// Imprimir el resultado
-echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
+  // Traemos los datos de las categorias para mostrar en el footer
+  $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
+
 ?>  
 
 <!DOCTYPE html>
@@ -77,11 +82,10 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Majestic Admin</title>
+  <title>Futskin - Admin</title>
   
   <link rel="apple-touch-icon" href="/assets/img/apple-icon.png">
   <link rel="shortcut icon" type="image/x-icon" href="/assets/img/favicon.ico">
-
   <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="/assets/css/templatemo.css">
   <link rel="stylesheet" href="/assets/css/custom.css">
@@ -89,13 +93,11 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
   <!-- Load fonts style after rendering the layout styles -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
   <link rel="stylesheet" href="/assets/css/fontawesome.min.css">
-
   <link rel="stylesheet" href="/assets/css/admin-style.css">
-  <!-- endinject -->
+
 </head>
+
 <body>
-
-
         <!-- NAV -->
         <nav class="navbar navbar-expand-lg bg-dark navbar-light d-none d-lg-block" id="templatemo_nav_top">
             <div class="container text-light">
@@ -111,11 +113,9 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
         <!-- HEADER -->
         <nav class="navbar navbar-expand-lg navbar-light shadow">
             <div class="container d-flex justify-content-between align-items-center">
-    
                 <a class="navbar-brand text-success logo h1 align-self-center" href="/principal.php">
                     FutSkin
                 </a>
-    
                 <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#templatemo_main_nav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -126,11 +126,11 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
                             <li class="nav-item">
                                 <a class="nav-link" href="principal.php">Inicio</a>
                             </li>
-
                             <li class="nav-item">
                                 <a class="nav-link" href="shop.php">Tienda</a>
                             </li>                            
 
+                            <!-- Si el usuario no es admin, mostramos las vistas para el usuario -->
                             <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
@@ -138,6 +138,8 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
                                 <li class="nav-item">
                                     <a class="nav-link" href="/carrito.php">Carrito</a>
                                 </li>
+
+                            <!-- Si el usuario es admin, mostramos las vistas para el administrador -->
                             <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
                             <li class="nav-item">
                                 <a class="nav-link" href="/creacion-producto.php">Nuevo producto</a>
@@ -145,22 +147,18 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
                             <li class="nav-item">
                                 <a class="nav-link" href="/admin.php">Vista Administrador</a>                        
                             </li>
-                            
                                 <?php } else { ?>
                                     <li class="nav-item"></li>
                                     <li class="nav-item"></li>
                                 <?php } ?>
-
                         </ul>
-
-
                     </div>
                     
                     <div class="navbar align-self-center d-flex">
                         <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
                             
+                        <!-- Si la sesion está iniciada, muestra el mensaje "Hola, $nombre" y el botón LOGOUT -->
                             <?php if (isset($_SESSION['email'])) { ?>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php"><?php echo "Hola, $nombre "?></a>
                                 </li>
@@ -170,28 +168,21 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
                                         <button type="submit" class="nav-link">Logout</button>
                                     </form>
                                 </li>
-
                             <?php } else { ?>
-     
                                 <li class="nav-item">
                                     <a class="nav-link" href="/signin.html">Iniciar sesión</a>
                                 </li>
-
                             <?php } ?>
-
                         </ul>
                     </div>
-    
                 </div>
-    
             </div>
         </nav>
         <!-- FIN HEADER -->
     
-      <!-- partial -->
+      <!-- PANEL ADMIN -->
       <div class="main-panel">
         <div class="content-wrapper">
-          
           <div class="row">
             <div class="col-md-12 grid-margin">
               <div class="d-flex justify-content-between flex-wrap">
@@ -200,22 +191,7 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
                     <h2>Panel de Administrador</h2>
                     <p class="mb-md-0">Panel de admin</p>
                   </div>
-  
                 </div>
-                <!--
-                <div class="d-flex justify-content-between align-items-end flex-wrap">
-                  <button type="button" class="btn btn-light bg-white btn-icon me-3 d-none d-md-block ">
-                    <i class="mdi mdi-download text-muted"></i>
-                  </button>
-                  <button type="button" class="btn btn-light bg-white btn-icon me-3 mt-2 mt-xl-0">
-                    <i class="mdi mdi-clock-outline text-muted"></i>
-                  </button>
-                  <button type="button" class="btn btn-light bg-white btn-icon me-3 mt-2 mt-xl-0">
-                    <i class="mdi mdi-plus text-muted"></i>
-                  </button>
-                  <button class="btn btn-primary mt-2 mt-xl-0">Generate report</button>
-                </div>
-                -->
               </div>
             </div>
           </div>
@@ -223,7 +199,6 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
             <div class="col-md-12 grid-margin stretch-card">
               <div class="card">
                 <div class="card-body dashboard-tabs p-0">
-                  
                   <div class="tab-content py-0 px-0">
                     <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
                       <div class="d-flex flex-wrap justify-content-xl-between">
@@ -239,6 +214,8 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
                         <div class="d-flex border-md-right flex-grow-1 align-items-center justify-content-center p-3 item">
                           <div class="d-flex flex-column justify-content-around">
                             <small class="mb-1 text-muted">Total compras</small>
+                            
+                        <!-- Trae los resultados del contador de ventas -->
                             <h5 class="me-2 mb-0"><?php echo $contadorVentas;?></h5>
                           </div>
                         </div>
@@ -246,27 +223,21 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
                           <i class="mdi mdi-eye me-3 icon-lg text-success"></i>
                           <div class="d-flex flex-column justify-content-around">
                             <small class="mb-1 text-muted">Ganancias</small>
-                            <?php ?>
+
+                        <!-- Trae los resultados del contador de ganancias -->
                             <h5 class="me-2 mb-0">$<?php echo $totalVentas;?></h5>
                           </div>
-                        </div>
-                        
+                        </div>                   
                       </div>
                     </div>
-                    
-                    
                   </div>
                 </div>
               </div>
             </div>
           </div>
           <div class="row">
-            <div class="col-md-7 grid-margin stretch-card">
-              
-            </div>
-            <div class="col-md-5 grid-margin stretch-card">
-              
-            </div>
+            <div class="col-md-7 grid-margin stretch-card"></div>
+            <div class="col-md-5 grid-margin stretch-card"></div>
           </div>
           <div class="row">
             <div class="col-md-12 stretch-card">
@@ -287,9 +258,14 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
                         </tr>
                       </thead>
                       <tbody>
+                  
+                    <!-- Código para traer los datos de cada venta -->
                       <?php
+
+                      // Ponemos en cero el contador del orden de venta
                       $orden = 0;
 
+                      // Traemos los datos de cada venta
                         foreach ($venta as $ventas) { 
                           $id = $ventas['id']; 
                           $cliente = $ventas['cliente_fk'];
@@ -301,9 +277,12 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
                           $total = $precio*$cantidad;
                           $estado = $ventas['estado'];
 
+                        // Sumamos uno al contador de orden de venta
                           if ($estado == "venta") {
                             $orden = $orden+1;
                         ?>
+
+                        <!-- Mostramos los datos de cada venta -->
                           <tr>
                             <td><?php echo $orden ?></td>
                             <td><?php echo $mailCliente ?></td>
@@ -326,8 +305,7 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
             </div>
           </div>
         </div>
-        <!-- content-wrapper ends -->
-
+        <!-- PANEL ADMIN -->
 
       <!-- FOOTER -->
         <footer class="bg-dark" id="tempaltemo_footer">
@@ -356,12 +334,14 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
                         <h2 class="h2 text-light border-bottom pb-3 border-light">Categorías</h2>
                         <ul class="list-unstyled text-light footer-link-list">
 
+                      <!-- Traemos el listado de las categorías -->
                         <?php foreach ($nombresCategorias as $categoria) { ?>
                           <li><a class="text-decoration-none" href="#"><?php echo $categoria; ?></a></li>
                         <?php } ?>
+
                         </ul>
                     </div>
-    
+                    
                     <div class="col-md-4 pt-5">
                         <h2 class="h2 text-light border-bottom pb-3 border-light">Accesos rápidos</h2>
                         <ul class="list-unstyled text-light footer-link-list">
@@ -370,14 +350,12 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
                         </ul>
                     </div>
                 </div>
-    
                 <div class="row text-light mb-4">
                     <div class="col-12 mb-3">
                         <div class="w-100 my-3 border-top border-light"></div>
                     </div>
                 </div>
             </div>
-    
             <div class="w-100 bg-black py-3">
                 <div class="container">
                     <div class="row pt-2">
@@ -392,17 +370,9 @@ echo "Número de ventas con estado '$estadoDeseado': $contadorVentas";
         </footer>
     <!-- FIN FOOTER -->
 
-
-
       </div>
-      <!-- main-panel ends -->
     </div>
-    <!-- page-body-wrapper ends -->
   </div>
-  <!-- container-scroller -->
-
-
-
 </body>
 
 </html>

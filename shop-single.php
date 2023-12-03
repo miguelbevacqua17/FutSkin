@@ -1,14 +1,17 @@
 <?php
+  // Incluimos el código de sesion.php y bd.php
   include "sesion.php";
   include "bd.php";
 
   $conn = conectarBDUsuario();
   
-  // Verificar si la sesión está iniciada y la clave 'email' está presente
+  // Verificamos si la sesión está iniciada y la clave 'email' está presente
   if (isset($_SESSION['email'])) {
       $sesion = $_SESSION['email'];
-      // Verificar si la consulta de datos del usuario es exitosa
+      // Verificamos si la consulta de datos del usuario es exitosa
       $usuario = consultaDatosUsuario($conn, $sesion);
+
+      // Si la variable usuario trae datos, los declaramos en variables y las mostramos con echo
       if ($usuario !== null) {
           $nombre = $usuario['nombre'];
           $rol = $usuario['rol'];
@@ -18,7 +21,6 @@
           echo "User Name: $nombre // ";
           echo "User Id: $usuarioID // ";
           echo "User Role: $rol";
-          // Resto del código que usa $nombre y $rol
       } else {
           echo "Error al obtener datos del usuario.";
       }
@@ -26,45 +28,44 @@
       echo "No hay sesión iniciada.";
   }
 
-// Verificar si se proporciona un ID válido en la URL
+// Verificamos si se proporciona un ID válido en la URL
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $productoID = $_GET['id'];
     // Ahora, $productoID contiene el ID del producto que se debe mostrar
 } else {
-    // Manejar el caso en que no se proporciona un ID válido
+    // Manejamos el caso en que no se proporciona un ID válido
     echo "ID de producto no válido";
-    exit; // O redirige a una página de error
+    exit;
 }
 
-
-
-// Obtener detalles del producto por ID
+// Obtenemos los detalles del producto por ID
 // Llamada a la función para obtener detalles del producto
 
 $carrito = $_GET['id'];
 $producto = obtenerDetalleProducto($productoID);
-// Verificar si se encontró el producto
+
+// Verificamos si se encontró el producto
 if ($producto === NULL) {
-    // Manejar el caso en que no se encontró el producto
     echo "Producto no encontrado";
-    exit; // O redirige a una página de error
+    exit;
 }
 
-
+// En la variable $precio traemos el precio del producto
 $precio = $producto['precio_lista'];
 $usuarioID = $usuario['id_cliente'];
 
+  // Traemos los datos de las categorias para mostrar en el footer
 $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
 
+ // En esta variable ejecutamos la funcion para agregar el producto al carrito
 $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
-// Resto del código HTML para mostrar la información del producto
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <title>FutSkin</title>
+    <title>FutSkin - Producto</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="apple-touch-icon" href="/assets/img/apple-icon.png">
@@ -109,7 +110,9 @@ $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
                         </li>
                         <li class="nav-item">
                            <a class="nav-link" href="shop.php">Tienda</a>
-                        </li>                            
+                        </li>        
+
+                        <!-- Si el usuario no es admin, mostramos las vistas para el usuario -->                  
                         <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
@@ -117,6 +120,8 @@ $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
                                 <li class="nav-item">
                                     <a class="nav-link" href="/carrito.php">Carrito</a>
                                 </li>
+                            
+                            <!-- Si el usuario es admin, mostramos las vistas para el administrador -->
                             <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
                             <li class="nav-item">
                                 <a class="nav-link" href="/creacion-producto.php">Nuevo producto</a>
@@ -134,6 +139,8 @@ $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
                     
                 <div class="navbar align-self-center d-flex">
                     <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">    
+                        
+                    <!-- Si la sesion está iniciada, muestra el mensaje "Hola, $nombre" y el botón LOGOUT -->
                         <?php if (isset($_SESSION['email'])) { ?>
                             <li class="nav-item">
                                 <a class="nav-link" href="/sign-edit.php"><?php echo "Hola, $nombre "?></a>
@@ -155,7 +162,7 @@ $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
     </nav>
     <!-- FIN HEADER -->
 
-    <!-- Modal -->
+    <!-- Modal (?) -->
     <div class="modal fade bg-white" id="templatemo_search" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="w-100 pt-1 mb-5 text-right">
@@ -172,7 +179,7 @@ $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
         </div>
     </div>
 
-    <!-- Open Content -->
+    <!-- Contenido -->
     <section class="bg-light">
         <div class="container pb-5">
             <div class="row">
@@ -183,7 +190,6 @@ $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
                     <div class="row">
                     </div>
                 </div>
-                <!-- col end -->
                 <div class="col-lg-7 mt-5">
                     <div class="card">
                         <div class="card-body">
@@ -200,7 +206,7 @@ $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
                             <h6>Descripción:</h6>
                             <p><?php echo $producto['descripcion']; ?></p>
 
-                            
+                        <!-- Formulario que contiene el botón para ejecutar la funcion que agrega al carrito -->
                             <form action="principal.php" method="GET">
                                 <input type="hidden" name="carrito" value="<?php echo $carrito; ?>">
                                 <div class="row pb-3">
@@ -212,15 +218,13 @@ $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
                                 </div>
                             </form>
 
-
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-    <!-- Close Content -->
-
+    <!-- Fin Contenido -->
 
 <!-- FOOTER -->
 <footer class="bg-dark" id="tempaltemo_footer">
@@ -246,6 +250,8 @@ $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
                     <div class="col-md-4 pt-5">
                         <h2 class="h2 text-light border-bottom pb-3 border-light">Categorías</h2>
                         <ul class="list-unstyled text-light footer-link-list">
+
+                    <!-- Traemos el listado de las categorías -->
                         <?php foreach ($nombresCategorias as $categoria) { ?>
                           <li><a class="text-decoration-none" href="#"><?php echo $categoria; ?></a></li>
                         <?php } ?>
@@ -278,7 +284,6 @@ $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
             </div>
         </footer>
     <!-- FIN FOOTER -->
-
 
     <!-- Start Script -->
     <script src="/assets/js/jquery-1.11.0.min.js"></script>

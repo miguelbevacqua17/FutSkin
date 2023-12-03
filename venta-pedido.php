@@ -1,21 +1,21 @@
 <?php
+  // Incluimos el código de bd.php
 include "bd.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ventaPedidoBtn'])) {
-    // Include your database connection logic
     require_once 'bd.php';
 
-    // Function to change the estado of the pedido to 'venta'
+    // Funcion para cambiar el estado del pedido a 'venta'
     function ventaPedido($usuarioId) {
         $conn = conectarBDUsuario();
 
         if (!$conn) {
-            return false; // Unable to connect to the database
+            return false;
         }
 
         $estadoVenta = 'venta';
 
-        // Corrected SQL query with prepared statement
+        // Update SQL
         $sql = "UPDATE pedidos SET estado = ? WHERE cliente_fk = ? AND estado = 'pendiente'";
         $stmt = $conn->prepare($sql);
 
@@ -26,25 +26,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ventaPedidoBtn'])) {
             if ($result) {
                 $stmt->close();
                 cerrarBDConexion($conn);
-                return true; // Return true on success
+                return true; 
             } else {
                 cerrarBDConexion($conn);
-                return false; // Error executing the statement
+                return false;
             }
         } else {
             cerrarBDConexion($conn);
-            return false; // Error preparing statement
+            return false;
         }
     }
 
-    // Handle changing the estado to 'venta'
+    // Verificamos errores
     $usuarioId = $_POST['usuarioId'];
     if (ventaPedido($usuarioId)) {
-        // Estado changed successfully
-        header('Location: gracias.html'); // Redirect to thank you page
+        header('Location: gracias.html'); // Redireccionamos a gracias.html
         exit();
     } else {
-        // Handle change failure (if needed)
         echo 'Error finalizando venta.';
     }
 }

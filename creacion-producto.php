@@ -1,16 +1,18 @@
 <?php
+  // Incluimos el código de sesion.php y bd.php
   include "sesion.php";
   include "bd.php";
 
   $conn = conectarBDUsuario();
   
-  // Verificar si la sesión está iniciada y la clave 'email' está presente
+  // Verificamos si la sesión está iniciada y la clave 'email' está presente
   if (isset($_SESSION['email'])) {
       $sesion = $_SESSION['email'];
   
-      // Verificar si la consulta de datos del usuario es exitosa
+      // Verificamos si la consulta de datos del usuario es exitosa
       $usuario = consultaDatosUsuario($conn, $sesion);
       
+      // Si la variable usuario trae datos, los declaramos en variables y las mostramos con echo
       if ($usuario !== null) {
         $nombre = $usuario['nombre'];
         $rol = $usuario['rol'];
@@ -20,8 +22,6 @@
         echo "User Name: $nombre // ";
         echo "User Id: $id // ";
         echo "User Role: $rol";
-
-          // Resto del código que usa $nombre y $rol
       } else {
           echo "Error al obtener datos del usuario.";
       }
@@ -29,7 +29,7 @@
       echo "No hay sesión iniciada.";
   }
 
-
+  // Traemos los datos de las categorias para mostrar en el footer
   $categorias = obtenerCategorias();
   $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
 
@@ -40,13 +40,12 @@
 <html lang="en">
 
 <head>
-    <title>FutSkin</title>
+    <title>FutSkin - Admin</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="apple-touch-icon" href="/assets/img/apple-icon.png">
     <link rel="shortcut icon" type="image/x-icon" href="/assets/img/favicon.ico">
-
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/templatemo.css">
     <link rel="stylesheet" href="/assets/css/custom.css">
@@ -55,19 +54,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
     <link rel="stylesheet" href="/assets/css/fontawesome.min.css">
 
-    <!-- Load map styles -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
-<!--
-    
-TemplateMo 559 Zay Shop
-
-https://templatemo.com/tm-559-zay-shop
-
--->
 </head>
 
 <body>
-
         <!-- NAV -->
         <nav class="navbar navbar-expand-lg bg-dark navbar-light d-none d-lg-block" id="templatemo_nav_top">
             <div class="container text-light">
@@ -79,15 +68,12 @@ https://templatemo.com/tm-559-zay-shop
         </nav>
         <!-- FIN NAV -->
     
-    
         <!-- HEADER -->
         <nav class="navbar navbar-expand-lg navbar-light shadow">
             <div class="container d-flex justify-content-between align-items-center">
-    
                 <a class="navbar-brand text-success logo h1 align-self-center" href="/principal.php">
                     FutSkin
                 </a>
-    
                 <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#templatemo_main_nav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -98,11 +84,11 @@ https://templatemo.com/tm-559-zay-shop
                             <li class="nav-item">
                                 <a class="nav-link" href="principal.php">Inicio</a>
                             </li>
-
                             <li class="nav-item">
                                 <a class="nav-link" href="shop.php">Tienda</a>
                             </li>                            
 
+                            <!-- Si el usuario no es admin, mostramos las vistas para el usuario -->
                             <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
@@ -110,6 +96,8 @@ https://templatemo.com/tm-559-zay-shop
                                 <li class="nav-item">
                                     <a class="nav-link" href="/carrito.php">Carrito</a>
                                 </li>
+
+                            <!-- Si el usuario es admin, mostramos las vistas para el administrador -->    
                             <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
                             <li class="nav-item">
                                 <a class="nav-link" href="/creacion-producto.php">Nuevo producto</a>
@@ -117,51 +105,39 @@ https://templatemo.com/tm-559-zay-shop
                             <li class="nav-item">
                                 <a class="nav-link" href="/admin.php">Vista Administrador</a>                        
                             </li>
-                            
                                 <?php } else { ?>
                                     <li class="nav-item"></li>
                                     <li class="nav-item"></li>
                                 <?php } ?>
-
                         </ul>
-
-
                     </div>
                     
                     <div class="navbar align-self-center d-flex">
                         <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
                             
+                        <!-- Si la sesion está iniciada, muestra el mensaje "Hola, $nombre" y el botón LOGOUT -->
                             <?php if (isset($_SESSION['email'])) { ?>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php"><?php echo "Hola, $nombre "?></a>
                                 </li>
-
                                 <li class="nav-item">
                                     <form action="logout.php" method="post">
                                         <button type="submit" class="nav-link">Logout</button>
                                     </form>
                                 </li>
-
                             <?php } else { ?>
-     
                                 <li class="nav-item">
                                     <a class="nav-link" href="/signin.html">Iniciar sesión</a>
                                 </li>
-
                             <?php } ?>
-
                         </ul>
                     </div>
-    
                 </div>
-    
             </div>
         </nav>
         <!-- FIN HEADER -->
 
-
-    <!-- Modal -->
+    <!-- Modal (?) -->
     <div class="modal fade bg-white" id="templatemo_search" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="w-100 pt-1 mb-5 text-right">
@@ -178,8 +154,7 @@ https://templatemo.com/tm-559-zay-shop
         </div>
     </div>
 
-
-    <!-- Start Content Page -->
+    <!-- Contenido -->
     <div class="container-fluid bg-light py-5">
         <div class="col-md-6 m-auto text-center">
             <h1 class="h1">Crear nuevo producto</h1>
@@ -188,29 +163,21 @@ https://templatemo.com/tm-559-zay-shop
             </p>
         </div>
     </div>
-
-
-    <!-- Start Contact -->
     <div class="container py-5">
     <div class="container">
+
+    <!-- Formulario para cargar nuevo producto - la lógica está en upload.php -->
     <form action="upload.php" method="post" enctype="multipart/form-data">
     
-
-        <!-- Otros campos del formulario -->
         <div class="row">
             <div class="form-group col-md-6 mb-3">
                 <label for="nombre">Nombre del producto</label>
                 <input type="text" class="form-control mt-1" id="nombre" name="nombre" placeholder="Nombre">
             </div>
-
-            <!-- Otros campos del formulario -->
-
             <div class="form-group col-md-6 mb-3">
                 <label for="descuento">Precio</label>
                 <input type="text" class="form-control mt-1" id="precio" name="precio" placeholder="Precio">
             </div>
-
-
             <div class="form-group col-md-6 mb-3">
                 <label for="categoria">Categoría</label>
                 <select class="form-control mt-1" id="categoria" name="categoria" required>
@@ -223,31 +190,25 @@ https://templatemo.com/tm-559-zay-shop
                     ?>
                 </select>
             </div>
-
             <div class="form-group col-md-3 mb-3">
                 <label for="descuento">Descuento</label>
                 <input type="text" class="form-control mt-1" id="descuento" name="descuento" placeholder="Descuento">
             </div>
-
             <div class="form-group col-md-3 mb-3">
                 <label for="stock">Stock</label>
                 <input type="text" class="form-control mt-1" id="stock" name="stock" placeholder="Stock">
             </div>
-            
         </div>
         <div class="mb-3">
             <label for="descripcion">Descripción</label>
             <input type="text" class="form-control mt-1" id="descripcion" name="descripcion" placeholder="Descripcion">
         </div>
-
         <div class="input-group mb-3">
             <input type="file" class="form-control" name="fileToUpload" id="inputGroupFile01" placeholder="Seleccionar Archivo ...">
         </div>
-
-        <!-- Otros campos del formulario -->
-
         <div class="row">
             <div class="col text-end mt-2">
+                <!-- Botón de envio del formulario -->
                 <button type="submit" name="submit" class="btn btn-success btn-lg px-3">Enviar</button>
             </div>
         </div>
@@ -255,8 +216,7 @@ https://templatemo.com/tm-559-zay-shop
 </div>
 
     </div>
-    <!-- End Contact -->
-
+    <!-- Fin Formulario -->
 
 <!-- FOOTER -->
 <footer class="bg-dark" id="tempaltemo_footer">
@@ -285,6 +245,7 @@ https://templatemo.com/tm-559-zay-shop
                         <h2 class="h2 text-light border-bottom pb-3 border-light">Categorías</h2>
                         <ul class="list-unstyled text-light footer-link-list">
 
+                    <!-- Traemos el listado de las categorías -->
                         <?php foreach ($nombresCategorias as $categoria) { ?>
                           <li><a class="text-decoration-none" href="#"><?php echo $categoria; ?></a></li>
                         <?php } ?>
@@ -321,6 +282,7 @@ https://templatemo.com/tm-559-zay-shop
         </footer>
     <!-- FIN FOOTER -->
 
+    <!-- Javascript para redirigir una vez enviado el formulario -->
     <script type="text/javascript">
         function redirigir(url){
           window.location.href = url;

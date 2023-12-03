@@ -1,14 +1,17 @@
 <?php
+  // Incluimos el código de sesion.php y bd.php
 include "sesion.php";
 include "bd.php";
 
-// Verificar si la sesión está iniciada y la clave 'email' está presente
+// Verificamos si la sesión está iniciada y la clave 'email' está presente
 if (isset($_SESSION['email'])) {
     $sesion = $_SESSION['email'];
     $conn = conectarBDUsuario();
 
-    // Obtener los datos del usuario
+    // Obtenemos los datos del usuario
     $usuario = consultaDatosUsuario($conn, $sesion);
+
+    // Si la variable usuario trae datos, los declaramos en variables y las mostramos con echo
     if ($usuario !== null) {
         $nombre = $usuario['nombre'];
         $rol = $usuario['rol'];
@@ -30,36 +33,31 @@ if (isset($_SESSION['email'])) {
         echo "Error al obtener datos del usuario.";
     }
 
-    // Verificar si el formulario ha sido enviado
-// Verificar si el formulario ha sido enviado
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  // Recoger los datos del formulario
-  $nuevoEmail = $_POST["email"];
-  $nuevoApellido = $_POST["apellido"];
-  $nuevoNombre = $_POST["nombre"];
-  $nuevoDireccion = $_POST["direccion"];
-  $nuevoAltura = $_POST["altura"];
-  $nuevoPiso = $_POST["piso"];
-  $nuevoBarrio = $_POST["barrio"];
+    // Verificamos si el formulario ha sido enviado
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-  // ... (código para obtener datos del usuario)
+    // Guardamos los datos del formulario
+    $nuevoEmail = $_POST["email"];
+    $nuevoApellido = $_POST["apellido"];
+    $nuevoNombre = $_POST["nombre"];
+    $nuevoDireccion = $_POST["direccion"];
+    $nuevoAltura = $_POST["altura"];
+    $nuevoPiso = $_POST["piso"];
+    $nuevoBarrio = $_POST["barrio"];
 
-  // Llamar a la función para actualizar los datos del usuario
+  // Llamamos a la función para actualizar los datos del usuario
   $actualizado = actualizarUsuario($conn, $nuevoEmail, $nuevoApellido, $nuevoNombre, $nuevoDireccion, $nuevoAltura, $nuevoBarrio, $nuevoPiso);
-  // Cerrar conexión '$conn' de base de datos
   
+  // Cerramos conexión '$conn' de base de datos
   cerrarBDConexion($conn);
 
-  if ($actualizado) {
+    if ($actualizado) {
       echo "Datos actualizados correctamente.";
-      // Puedes redirigir al usuario a otra página o mostrar un mensaje de éxito.
       header("Location: sign-edit.php");
-  } else {
+    } else {
       echo "Error al actualizar los datos.";
-      // Puedes mostrar un mensaje de error o realizar alguna otra acción.
-  }
+    }
 }
-
 
 } else {
     echo "No hay sesión iniciada.";

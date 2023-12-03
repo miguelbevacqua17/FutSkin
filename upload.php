@@ -1,13 +1,15 @@
 <?php
 ###################################################################################
 ## Seteo y Configuracion inicial
-//directorio donde se suben los archivos. Debe estar creado previamente
+// directorio donde se suben los archivos. Debe estar creado previamente.
+
+
 // hay que pasar por terminal para que funciona: 
 // chmod 777 uploads
 // chmod 755 uploads
 
 
-
+  // Incluimos el código de sesion.php y bd.php
 include "sesion.php";
 include "bd.php";
 
@@ -148,12 +150,12 @@ function main(){
         $uploaded_files = subirArchivo($dirUplod, $_FILES["fileToUpload"]);
         //****----------------------------------------*/
 
-        // Verifica si el formulario se ha enviado
+        // Verificamos si el formulario se ha enviado
         if ($_SERVER["REQUEST_METHOD"] == "POST" && $uploaded_files) {
             list($original_file_name, $unique_file_name) = $uploaded_files;
 
 
-            // Recoge los datos del formulario
+            // Guardamos los datos del formulario
             $nombre = $_POST["nombre"];
             $precioLista = $_POST["precio"];
             $categoriaID = $_POST["categoria"];
@@ -164,10 +166,10 @@ function main(){
 
             $conn = conectarBDUsuario();
 
-            // Llamar a la función para insertar el nuevo producto
+            // Llamamos a la función para insertar el nuevo producto
             $resultado = insertarNuevoProducto($categoriaID, $nombre, $imagen, $descripcion, $precioLista, $descuento, $stock);
 
-            // Verificar el resultado
+            // Verificamos el resultado
             if ($resultado) {
                 echo "Nuevo producto agregado correctamente.";
             } else {

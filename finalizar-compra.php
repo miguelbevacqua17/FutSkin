@@ -1,14 +1,19 @@
 <?php
-include "sesion.php";
-include "bd.php";
+    // Incluimos el código de sesion.php y bd.php
+    include "sesion.php";
+    include "bd.php";
 
-$conn = conectarBDUsuario();
+    // Conectamos con la base de datos
+    $conn = conectarBDUsuario();
 
-// Verificar si la sesión está iniciada y la clave 'email' está presente
+// Verificamos si la sesión está iniciada y la clave 'email' está presente
 if (isset($_SESSION['email'])) {
     $sesion = $_SESSION['email'];
-    // Verificar si la consulta de datos del usuario es exitosa
+
+    // Verificamos si la consulta de datos del usuario es exitosa
     $usuario = consultaDatosUsuario($conn, $sesion); 
+
+    // Si la variable usuario trae datos, los declaramos en variables y las mostramos con echo
     if ($usuario !== null) {
         $usuarioId = $usuario['id_cliente'];
         $nombre = $usuario['nombre'];
@@ -30,7 +35,7 @@ if (isset($_SESSION['email'])) {
 
 $sesionUsuario = controlarSesion();
 
-// Variables para el contenido de los input
+// Declaramos las variables para el contenido de los input
 $email = "no data";
 $apellido = "no data";
 $nombre = "no data";
@@ -40,15 +45,15 @@ $piso = "no data";
 $barrio = "no data";
 
 if ($sesionUsuario != NULL) {
-    // Abrir conexión a base de datos, en este caso 'bd_usuario'
+    // Abrimos la conexión con la base de datos
     $conn = conectarBDUsuario();
     // Ejecutar consulta
     $resultado = consultaDatosUsuario($conn, $sesionUsuario);
-    // Cerrar conexión '$conn' de base de datos
+    // Cerraramos la conexión '$conn' de la base de datos
     cerrarBDConexion($conn);
 
     if ($resultado != NULL) {
-        // Obtener datos del usuario
+        // Obtenemos los datos del usuario
         $email = $resultado['email'];
         $apellido = $resultado['apellido'];
         $nombre = $resultado['nombre'];
@@ -60,31 +65,27 @@ if ($sesionUsuario != NULL) {
     }
 }
 
-
-
  $id = $usuario['id_cliente'];
  
- $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
-
+// Traemos los datos del carrito del usuario y el cálculo de la suma del costo del carrito
  $productosCarrito = obtenerProductosCarrito($id);
  $precioTotal = calcularPrecioTotal($productosCarrito);
 
-
+ // Traemos los datos de las categorias para mostrar en el footer
+ $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
 
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <title>FutSkin</title>
+    <title>FutSkin - Finalizar Compra</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="apple-touch-icon" href="/assets/img/apple-icon.png">
     <link rel="shortcut icon" type="image/x-icon" href="/assets/img/favicon.ico">
-
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/templatemo.css">
     <link rel="stylesheet" href="/assets/css/custom.css">
@@ -93,19 +94,9 @@ if ($sesionUsuario != NULL) {
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
     <link rel="stylesheet" href="/assets/css/fontawesome.min.css">
 
-    <!-- Load map styles -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
-<!--
-    
-TemplateMo 559 Zay Shop
-
-https://templatemo.com/tm-559-zay-shop
-
--->
 </head>
 
 <body>
-
         <!-- NAV -->
         <nav class="navbar navbar-expand-lg bg-dark navbar-light d-none d-lg-block" id="templatemo_nav_top">
             <div class="container text-light">
@@ -117,30 +108,26 @@ https://templatemo.com/tm-559-zay-shop
         </nav>
         <!-- FIN NAV -->
     
-    
         <!-- HEADER -->
         <nav class="navbar navbar-expand-lg navbar-light shadow">
             <div class="container d-flex justify-content-between align-items-center">
-    
                 <a class="navbar-brand text-success logo h1 align-self-center" href="/principal.php">
                     FutSkin
                 </a>
-    
                 <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#templatemo_main_nav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-    
                 <div class="align-self-center collapse navbar-collapse flex-fill  d-lg-flex justify-content-lg-between" id="templatemo_main_nav">
                     <div class="flex-fill">
                         <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
                             <li class="nav-item">
                                 <a class="nav-link" href="principal.php">Inicio</a>
                             </li>
-
                             <li class="nav-item">
                                 <a class="nav-link" href="shop.php">Tienda</a>
                             </li>                            
 
+                            <!-- Si el usuario no es admin, mostramos las vistas para el usuario -->
                             <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
@@ -148,6 +135,8 @@ https://templatemo.com/tm-559-zay-shop
                                 <li class="nav-item">
                                     <a class="nav-link" href="/carrito.php">Carrito</a>
                                 </li>
+
+                            <!-- Si el usuario es admin, mostramos las vistas para el administrador -->
                             <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
                             <li class="nav-item">
                                 <a class="nav-link" href="/creacion-producto.php">Nuevo producto</a>
@@ -155,51 +144,40 @@ https://templatemo.com/tm-559-zay-shop
                             <li class="nav-item">
                                 <a class="nav-link" href="/admin.php">Vista Administrador</a>                        
                             </li>
-                            
                                 <?php } else { ?>
                                     <li class="nav-item"></li>
                                     <li class="nav-item"></li>
                                 <?php } ?>
-
                         </ul>
-
-
                     </div>
                     
                     <div class="navbar align-self-center d-flex">
                         <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
                             
+                        <!-- Si la sesion está iniciada, muestra el mensaje "Hola, $nombre" y el botón LOGOUT -->
                             <?php if (isset($_SESSION['email'])) { ?>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php"><?php echo "Hola, $nombre "?></a>
                                 </li>
-
                                 <li class="nav-item">
                                     <form action="logout.php" method="post">
                                         <button type="submit" class="nav-link">Logout</button>
                                     </form>
                                 </li>
-
                             <?php } else { ?>
-     
                                 <li class="nav-item">
                                     <a class="nav-link" href="/signin.html">Iniciar sesión</a>
                                 </li>
-
                             <?php } ?>
-
                         </ul>
                     </div>
-    
-                </div>
-    
+                </div>    
             </div>
         </nav>
         <!-- FIN HEADER -->
 
 
-    <!-- Modal -->
+    <!-- Modal (?) -->
     <div class="modal fade bg-white" id="templatemo_search" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="w-100 pt-1 mb-5 text-right">
@@ -217,7 +195,7 @@ https://templatemo.com/tm-559-zay-shop
     </div>
 
 
-    <!-- Start Content Page -->
+    <!-- Contenido -->
     <div class="container-fluid bg-light py-5">
         <div class="col-md-6 m-auto text-center">
             <h1 class="h1">Finalizar la compra</h1>
@@ -228,18 +206,17 @@ https://templatemo.com/tm-559-zay-shop
     </div>
 
 
-    <!-- Start Contact -->
+    <!-- Formulario para finalizar la compra - la lógica está en venta-pedido.php -->
     <div class="container py-5">
         <div class="row py-5">
         <form class="col-md-9 m-auto" method="post" action="venta-pedido.php" role="form">
             <div class="row">
-
             <div class="card-body">
             <div class="table-responsive">
               <table class="table table-bordered m-0">
                 <thead>
                   <tr>
-                    <!-- Set columns width -->
+                    <!-- Los títulos de la tabla Finalizar Compra -->
                     <th class="text-center py-3 px-4" style="min-width: 400px;">Producto</th>
                     <th class="text-right py-3 px-4" style="width: 200px;">ID pedido</th>
                     <th class="text-right py-3 px-4" style="width: 200px;">Precio</th>
@@ -250,20 +227,18 @@ https://templatemo.com/tm-559-zay-shop
                 <tbody>
         
                 <?php
-                        // Verificar si hay productos en el carrito antes de iterar
+                        // Verificamos si hay productos en el carrito antes de iterar
                         if (!empty($productosCarrito)) {
-                        // Iterar sobre los productos del carrito y generar filas de la tabla
+                        // Iteraramos sobre los productos del carrito y generaramos las filas de la tabla
                         foreach ($productosCarrito as $producto) {
                             if (array_key_exists('cantidad_prod', $producto)) {
-                                // Acceder a la cantidad si existe
+                                // Accedemos a la cantidad si existe
                                 $cantidad = $producto['cantidad_prod'];
-                                // Resto del código para mostrar la cantidad...
                             } else {
-                                // Manejar el caso en el que 'cantidad_prod' no está definido
+                                // Manejamos el caso en el que 'cantidad_prod' no está definido
                                 echo "La clave 'cantidad_prod' no está definida para este producto.";
                             }
                             ?>
-
 
                     <tr>
                         <td class="p-4">
@@ -281,8 +256,6 @@ https://templatemo.com/tm-559-zay-shop
                         <td class="text-center align-middle px-0">
                         </td>
                     </tr>
-
-
                 
                 <?php
                             }
@@ -291,18 +264,14 @@ https://templatemo.com/tm-559-zay-shop
                             echo '<tr><td colspan="5" class="text-center">No hay productos en el carrito.</td></tr>';
                         }
                         ?>
-
                 </tbody>
               </table>
             </div>
             <div class="form-group col-md-12 text-center mb-4 mt-4">
     <label class="h3" for="text">Total a pagar: $<?php echo $precioTotal?></label>
-</div>
 
-
-                </div>
-                
-
+        </div>
+            </div>
                 <div class="row">
                     <div class="col text-end mt-2">
                         <input type="hidden" name="usuarioId" value="<?php echo $usuarioId ?>">
@@ -313,14 +282,12 @@ https://templatemo.com/tm-559-zay-shop
         </form>
         </div>
     </div>
-    <!-- End Contact -->
-
+    <!-- Fin Formulario -->
 
 <!-- FOOTER -->
 <footer class="bg-dark" id="tempaltemo_footer">
             <div class="container">
                 <div class="row">
-    
                     <div class="col-md-4 pt-5">
                         <h2 class="h2 text-success border-bottom pb-3 border-light logo">FutSkin</h2>
                         <ul class="list-unstyled text-light footer-link-list">
@@ -338,17 +305,16 @@ https://templatemo.com/tm-559-zay-shop
                             </li>
                         </ul>
                     </div>
-
                     <div class="col-md-4 pt-5">
                         <h2 class="h2 text-light border-bottom pb-3 border-light">Categorías</h2>
                         <ul class="list-unstyled text-light footer-link-list">
 
+                    <!-- Traemos el listado de las categorías -->
                         <?php foreach ($nombresCategorias as $categoria) { ?>
                           <li><a class="text-decoration-none" href="#"><?php echo $categoria; ?></a></li>
                         <?php } ?>
                         </ul>
                     </div>
-    
                     <div class="col-md-4 pt-5">
                         <h2 class="h2 text-light border-bottom pb-3 border-light">Accesos rápidos</h2>
                         <ul class="list-unstyled text-light footer-link-list">
@@ -357,14 +323,12 @@ https://templatemo.com/tm-559-zay-shop
                         </ul>
                     </div>
                 </div>
-    
                 <div class="row text-light mb-4">
                     <div class="col-12 mb-3">
                         <div class="w-100 my-3 border-top border-light"></div>
                     </div>
                 </div>
             </div>
-    
             <div class="w-100 bg-black py-3">
                 <div class="container">
                     <div class="row pt-2">

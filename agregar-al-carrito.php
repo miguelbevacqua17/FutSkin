@@ -1,15 +1,15 @@
 <?php
-// Incluir la conexión a la base de datos y cualquier otra función necesaria
-include 'bd.php'; // Ajusta el nombre según tu estructura
+  // Incluimos el código de bd.php
+include 'bd.php';
 
-// Verificar si se ha proporcionado un ID de producto válido
+// Verificamos si se proporciona un ID de un producto válido
 if (isset($_GET['producto_id']) && is_numeric($_GET['producto_id'])) {
     $productoID = $_GET['producto_id'];
 
-    // Obtener la ID del usuario actual (puedes usar tu función obtenerIdUsuarioActual)
+    // Obtenemos el ID del usuario actual con la funcion obtenerIdUsuarioActual()
     $usuarioID = obtenerIdUsuarioActual(); // Ajusta según tu lógica
 
-    // Llamar a la función para agregar el producto al carrito
+    // Llamamos a la función para agregar el producto al carrito agregarProductoAlCarrito()
     if (agregarProductoAlCarrito($usuarioID, $productoID)) {
         echo "Producto agregado al carrito exitosamente.";
     } else {

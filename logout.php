@@ -1,17 +1,17 @@
 <?php
-
+  // Incluimos el código de sesion.php
 include "sesion.php";
 
-session_start(); // Start the session
+session_start(); // Arrancamos la sesion
 
-// Unset all session variables
+// Eliminamos las variables de sesion
 $_SESSION = array();
 echo $_SESSION;
 
-// Destroy the session
+// Cerramos la sesion
 session_destroy();
 
-// Redirect to the login page or any other appropriate location
+// Redirigimos a principal.php
 header("Location: principal.php");
 exit();
   

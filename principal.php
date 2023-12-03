@@ -1,4 +1,5 @@
 <?php
+    // Incluimos el código de sesion.php y bd.php
     include "sesion.php";
     include "bd.php";
 
@@ -86,6 +87,7 @@
                                 <a class="nav-link" href="shop.php">Tienda</a>
                             </li>                            
 
+                            <!-- Si el usuario no es admin, mostramos las vistas para el usuario -->
                             <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
@@ -93,6 +95,8 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="/carrito.php">Carrito</a>
                                 </li>
+                            
+                            <!-- Si el usuario es admin, mostramos las vistas para el administrador -->
                             <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
                             <li class="nav-item">
                                 <a class="nav-link" href="/creacion-producto.php">Nuevo producto</a>
@@ -111,6 +115,7 @@
                     <div class="navbar align-self-center d-flex">
                         <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
                             
+                        <!-- Si la sesion está iniciada, muestra el mensaje "Hola, $nombre" y el botón LOGOUT -->
                             <?php if (isset($_SESSION['email'])) { ?>
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php"><?php echo "Hola, $nombre "?></a>
@@ -198,6 +203,8 @@
                 <div class="col-md-4 pt-5">
                     <h2 class="h2 text-light border-bottom pb-3 border-light">Categorías</h2>
                     <ul class="list-unstyled text-light footer-link-list">
+
+                    <!-- Traemos el listado de las categorías -->
                         <?php foreach ($nombresCategorias as $categoria) { ?>
                           <li><a class="text-decoration-none" href="#"><?php echo $categoria; ?></a></li>
                         <?php } ?>

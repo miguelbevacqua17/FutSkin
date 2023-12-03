@@ -1,14 +1,18 @@
 <?php
+  // Incluimos el código de sesion.php y bd.php
   include "sesion.php";
   include "bd.php";
 
+  // Conectamos con la base de datos
   $conn = conectarBDUsuario();
 
-  // Verificar si la sesión está iniciada y la clave 'email' está presente
+  // Verificamos si la sesión está iniciada y la clave 'email' está presente
   if (isset($_SESSION['email'])) {
       $sesion = $_SESSION['email'];
-      // Verificar si la consulta de datos del usuario es exitosa
+      // Verificamos si la consulta de datos del usuario es exitosa
       $usuario = consultaDatosUsuario($conn, $sesion);
+
+      // Si la variable usuario trae datos, los declaramos en variables y las mostramos con echo
       if ($usuario !== null) {
         $nombre = $usuario['nombre'];
         $rol = $usuario['rol'];
@@ -26,31 +30,33 @@
       echo "No hay sesión iniciada.";
   }
 
+    // Declaramos la variable $categoria 
   $categoria = NULL;
 
-  // Verificar si se proporciona un ID válido en la URL
+  // Verificamos si se proporciona un ID válido de categoria en la URL
   if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $categoriaID = $_GET['id'];
-    // Obtener detalles de la categoría por ID
+    // Obtenemos detalles de la categoría por ID
     $categoria = obtenerDetalleCategoria($categoriaID);
   }
 
+  // Guardamos en esta variable el nombre de la categoria
   $tituloCategoria = $categoria['nombre'];;
 
-    
-
+    // Traemos los datos de las categorias y los productos
     $categoriasHTML = traerCategoriasHTML();
     $productosHTML = traerProductosHTML("detalle");
+
+    // Traemos los datos de las categorias para mostrar en el footer
     $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
 
 ?>  
-
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <title>FutSkin</title>
+    <title>FutSkin - Categoria</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="apple-touch-icon" href="/assets/img/apple-icon.png">
@@ -90,7 +96,8 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="shop.php">Tienda</a>
-                            </li>                            
+                            </li>           
+                            <!-- Si el usuario no es admin, mostramos las vistas para el usuario -->                 
                             <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
@@ -98,6 +105,8 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="/carrito.php">Carrito</a>
                                 </li>
+
+                            <!-- Si el usuario es admin, mostramos las vistas para el administrador -->    
                             <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
                             <li class="nav-item">
                                 <a class="nav-link" href="/creacion-producto.php">Nuevo producto</a>
@@ -114,6 +123,8 @@
                     </div>            
                 <div class="navbar align-self-center d-flex">
                     <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
+
+                    <!-- Si la sesion está iniciada, muestra el mensaje "Hola, $nombre" y el botón LOGOUT -->
                         <?php if (isset($_SESSION['email'])) { ?>
                             <li class="nav-item">
                                 <a class="nav-link" href="/sign-edit.php"><?php echo "Hola, $nombre "?></a>
@@ -135,7 +146,7 @@
     </nav>
     <!-- FIN HEADER -->
 
-    <!-- Modal -->
+    <!-- Modal (?) -->
     <div class="modal fade bg-white" id="templatemo_search" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="w-100 pt-1 mb-5 text-right">
@@ -152,10 +163,11 @@
         </div>
     </div>
 
-    <!-- Start Content -->
+    <!-- Contenido -->
     <div class="container py-5">
         <div class="row">
             <div class="col-lg-3">
+                <!-- Traemos el título de la categoria -->
                 <h1 class="h2 pb-4">Categoría: <?php echo $tituloCategoria; ?></h1>
             </div>
             <div class="col-lg-9">
@@ -185,9 +197,9 @@
                 </div>
                 <div class="row">
                     <?php 
-                        // Obtener productos por categoría
+                        // Obtenemos los productos de la categoría específica
                         $productosPorCategoria = obtenerProductosPorCategoria($conn, $categoriaID);
-                        // Mostrar contenido según la categoría y productos por categoría
+                        // Mostramos los productos de la categoría específica
                         $mostrarProductos = mostrarContenidoSegunCategoria($productosPorCategoria);
                             echo $mostrarProductos;
                     ?>
@@ -195,7 +207,7 @@
             </div>
         </div>
     </div>
-    <!-- End Content -->
+    <!-- Fin Contenido -->
 
 
 
@@ -223,6 +235,8 @@
             <div class="col-md-4 pt-5">
                 <h2 class="h2 text-light border-bottom pb-3 border-light">Categorías</h2>
                     <ul class="list-unstyled text-light footer-link-list">
+                    
+                    <!-- Traemos el listado de las categorías -->
                         <?php foreach ($nombresCategorias as $categoria) { ?>
                           <li><a class="text-decoration-none" href="#"><?php echo $categoria; ?></a></li>
                         <?php } ?>

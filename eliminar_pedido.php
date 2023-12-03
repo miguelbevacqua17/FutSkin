@@ -1,18 +1,22 @@
 <?php
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminarPedidoBtn'])) {
-    // Include your database connection logic
+    
+    // Incluimos el código de bd.php
     require_once 'bd.php';
 
-    // Function to eliminate the pedido
+    // Funcion para eliminar el pedido (le pasamos el ID de ese pedido)
     function eliminarPedido($pedidoID) {
         $conn = conectarBDUsuario();
 
         if (!$conn) {
-            return false; // Unable to connect to the database
+            return false;
         }
-
+    
+        // Declaramos el estado que queremos que actualice en la base ('eliminado')
         $estadoEliminado = 'eliminado';
 
+        // Update SQL
         $sql = "UPDATE pedidos SET estado = ? WHERE id = ? AND estado = 'pendiente'";
         $stmt = $conn->prepare($sql);
 
@@ -23,21 +27,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminarPedidoBtn']))
             $stmt->close();
             cerrarBDConexion($conn);
 
-            return $result; // Return true on success, false on failure
+            return $result;
         } else {
             cerrarBDConexion($conn);
-            return false; // Error preparing statement
+            return false;
         }
     }
 
-    // Handle pedido deletion
+    // Realizamos el cambio de estado en la base de datos
     $pedidoID = $_POST['pedidoID'];
     if (eliminarPedido($pedidoID)) {
-        // Pedido deleted successfully, you can redirect or display a success message
+        // Se eliminó el producto
         header('Location: carrito.php');
         exit();
     } else {
-        // Handle deletion failure (if needed)
+        // Error al eliminar el producto
         echo 'Error deleting pedido.';
     }
 }

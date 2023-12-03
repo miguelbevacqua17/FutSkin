@@ -1,16 +1,18 @@
 <?php
+  // Incluimos el código de sesion.php y bd.php
   include "sesion.php";
   include "bd.php";
 
   $conn = conectarBDUsuario();
   
-  // Verificar si la sesión está iniciada y la clave 'email' está presente
+  // Verificamos si la sesión está iniciada y la clave 'email' está presente
   if (isset($_SESSION['email'])) {
       $sesion = $_SESSION['email'];
   
-      // Verificar si la consulta de datos del usuario es exitosa
+      // Verificamos si la consulta de datos del usuario es exitosa
       $usuario = consultaDatosUsuario($conn, $sesion);
       
+      // Si la variable usuario trae datos, los declaramos en variables y las mostramos con echo
       if ($usuario !== null) {
           $nombre = $usuario['nombre'];
           $rol = $usuario['rol'];
@@ -20,9 +22,6 @@
           echo "User Name: $nombre // ";
           echo "User ID: $id // ";
           echo "User Role: $rol";
-
-
-          // Resto del código que usa $nombre y $rol
       } else {
           echo "Error al obtener datos del usuario.";
       }
@@ -30,8 +29,11 @@
       echo "No hay sesión iniciada.";
   }
 
+  // Traemos los datos del carrito del usuario y el cálculo de la suma del costo del carrito
   $productosCarrito = obtenerProductosCarrito($id);
   $precioTotal = calcularPrecioTotal($productosCarrito);
+
+  // Traemos los datos de las categorias para mostrar en el footer
   $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
 
 ?>  
@@ -40,13 +42,12 @@
 <html lang="en">
 
 <head>
-    <title>FutSkin</title>
+    <title>FutSkin - Carrito</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="apple-touch-icon" href="/assets/img/apple-icon.png">
     <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
-
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/templatemo.css">
     <link rel="stylesheet" href="/assets/css/custom.css">
@@ -58,7 +59,6 @@
 </head>
 
 <body>
-
         <!-- NAV -->
         <nav class="navbar navbar-expand-lg bg-dark navbar-light d-none d-lg-block" id="templatemo_nav_top">
             <div class="container text-light">
@@ -70,11 +70,9 @@
         </nav>
         <!-- FIN NAV -->
     
-    
         <!-- HEADER -->
         <nav class="navbar navbar-expand-lg navbar-light shadow">
             <div class="container d-flex justify-content-between align-items-center">
-    
                 <a class="navbar-brand text-success logo h1 align-self-center" href="/principal.php">
                     FutSkin
                 </a>
@@ -89,11 +87,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="principal.php">Inicio</a>
                             </li>
-
                             <li class="nav-item">
                                 <a class="nav-link" href="shop.php">Tienda</a>
                             </li>                            
 
+                            <!-- Si el usuario no es admin, mostramos las vistas para el usuario -->
                             <?php if (isset($_SESSION['email']) && $rol != '1') { ?>
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php">Editar datos usuario</a>
@@ -101,6 +99,8 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="/carrito.php">Carrito</a>
                                 </li>
+
+                            <!-- Si el usuario es admin, mostramos las vistas para el administrador -->    
                             <?php } elseif (isset($_SESSION['email']) && $rol = '1') { ?>     
                             <li class="nav-item">
                                 <a class="nav-link" href="/creacion-producto.php">Nuevo producto</a>
@@ -113,47 +113,37 @@
                                     <li class="nav-item"></li>
                                     <li class="nav-item"></li>
                                 <?php } ?>
-
                         </ul>
 
-
                     </div>
-                    
+            
                     <div class="navbar align-self-center d-flex">
                         <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
                             
+                        <!-- Si la sesion está iniciada, muestra el mensaje "Hola, $nombre" y el botón LOGOUT -->
                             <?php if (isset($_SESSION['email'])) { ?>
-
                                 <li class="nav-item">
                                     <a class="nav-link" href="/sign-edit.php"><?php echo "Hola, $nombre "?></a>
                                 </li>
-
                                 <li class="nav-item">
                                     <form action="logout.php" method="post">
                                         <button type="submit" class="nav-link">Logout</button>
                                     </form>
                                 </li>
-
                             <?php } else { ?>
-     
                                 <li class="nav-item">
                                     <a class="nav-link" href="/signin.html">Iniciar sesión</a>
                                 </li>
-
                             <?php } ?>
-
                         </ul>
                     </div>
-    
                 </div>
-    
             </div>
         </nav>
         <!-- FIN HEADER -->
 
 
 <div class="container px-3 my-5 clearfix">
-    <!-- Shopping cart table -->
     <div class="card">
         <div class="card-header">
             <h2>Carrito</h2>
@@ -163,7 +153,7 @@
               <table class="table table-bordered m-0">
                 <thead>
                   <tr>
-                    <!-- Set columns width -->
+                    <!-- Los títulos de la tabla Carrito -->
                     <th class="text-center py-3 px-4" style="min-width: 400px;">Producto</th>
                     <th class="text-right py-3 px-4" style="width: 200px;">ID pedido</th>
                     <th class="text-right py-3 px-4" style="width: 200px;">Precio</th>
@@ -175,21 +165,19 @@
                 <tbody>
         
                 <?php
-                        // Verificar si hay productos en el carrito antes de iterar
+                        // Verificamos si hay productos en el carrito antes de iterar
                         if (!empty($productosCarrito)) {
-                        // Iterar sobre los productos del carrito y generar filas de la tabla
+                        // Iteramos sobre los productos del carrito y generaramos filas de la tabla
                         foreach ($productosCarrito as $producto) {
                             if (array_key_exists('cantidad_prod', $producto)) {
-                                // Acceder a la cantidad si existe
+                                // Accedemos a la cantidad de productos
                                 $cantidad = $producto['cantidad_prod'];
-                                // Resto del código para mostrar la cantidad...
                             } else {
-                                // Manejar el caso en el que 'cantidad_prod' no está definido
                                 echo "La clave 'cantidad_prod' no está definida para este producto.";
                             }
                             ?>
 
-
+                <!-- Traemos los productos que hay en el carrito, y los ponemos en la tabla-->
                     <tr>
                         <td class="p-4">
                             <div class="media align-items-center">
@@ -210,11 +198,6 @@
                         </form>
                         </td>
                     </tr>
-
-
-
-
-
                 
                 <?php
                             }
@@ -223,22 +206,23 @@
                             echo '<tr><td colspan="5" class="text-center">No hay productos en el carrito.</td></tr>';
                         }
                         ?>
-
                 </tbody>
               </table>
             </div>
-            <!-- / Shopping cart table -->
         
             <div class="d-flex flex-wrap justify-content-between align-items-center pb-4">
               <div class="d-flex">
                 </div>
                 <div class="text-right mt-4">
+
+                <!-- Traemos la variable con el precio total del carrito -->
                   <label class="text-muted font-weight-normal m-0">PRECIO TOTAL</label>
                   <div class="text-large"><strong>$<?php echo $precioTotal?></strong></div>
                 </div>
               </div>
             </div>
-        
+
+            <!-- Botón que redirecciona a /finalizar-compra.php -->
             <div class="float-right">
               <a href="/finalizar-compra.php"><button type="button" class="btn btn-lg btn-primary mt-2" style="background-color: #198754; color: white;">Finalizar compra</button></a>
             </div>
@@ -246,7 +230,6 @@
           </div>
       </div>
   </div>
-
 
 <!-- FOOTER -->
 <footer class="bg-dark" id="tempaltemo_footer">
@@ -275,6 +258,7 @@
                         <h2 class="h2 text-light border-bottom pb-3 border-light">Categorías</h2>
                         <ul class="list-unstyled text-light footer-link-list">
 
+                    <!-- Traemos el listado de las categorías -->
                         <?php foreach ($nombresCategorias as $categoria) { ?>
                           <li><a class="text-decoration-none" href="#"><?php echo $categoria; ?></a></li>
                         <?php } ?>
