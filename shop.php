@@ -5,10 +5,10 @@
 
   $conn = conectarBDUsuario();
 
-  // Verificar si la sesión está iniciada y la clave 'email' está presente
+  // Verificamos si la sesión está iniciada y la clave 'email' está presente
   if (isset($_SESSION['email'])) {
       $sesion = $_SESSION['email'];
-      // Verificar si la consulta de datos del usuario es exitosa
+      // Verificamos si la consulta de datos del usuario es exitosa
       $usuario = consultaDatosUsuario($conn, $sesion);
       if ($usuario !== null) {
         $nombre = $usuario['nombre'];
@@ -19,18 +19,15 @@
         echo "User Name: $nombre // ";
         echo "User Id: $id // ";
         echo "User Role: $rol";
-          // Resto del código que usa $nombre y $rol
       } else {
           echo "Error al obtener datos del usuario.";
       }
   } else {
       echo "No hay sesión iniciada.";
   }
-
     $categoriasHTML = traerCategoriasHTML();
     $productosHTML = traerProductosHTML("detalle");
     $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
-
 ?>  
 
 
@@ -46,7 +43,6 @@
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/templatemo.css">
     <link rel="stylesheet" href="/assets/css/custom.css">
-    <!-- Load fonts style after rendering the layout styles -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
     <link rel="stylesheet" href="/assets/css/fontawesome.min.css">
 </head>
@@ -183,7 +179,6 @@
         </div>
     </div>
     <!-- End Content -->
-
 
 
 <!-- FOOTER -->

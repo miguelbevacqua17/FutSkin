@@ -45,6 +45,7 @@
               // Sumamos el precio_venta al total
               $totalGanancia = $ventaItem['precio_venta']*$ventaItem['cantidad_prod'];
               $totalPrecioVentas += $totalGanancia;
+              //$totalPrecioVentas = $totalPrecioVentas + $totalGanancia;
           }
       }
       // retornamos el resultado
@@ -64,6 +65,7 @@
       if (isset($ventaItem['estado']) && $ventaItem['estado'] === $estadoDeseado) {
           // Incrementamos el contador
           $contadorVentas++;
+          //$contadorVentas = $contadorVentas + 1;
       }
   }
 
