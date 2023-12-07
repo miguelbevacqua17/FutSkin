@@ -9,14 +9,15 @@ CREATE TABLE categorias (
   id int(11) NOT NULL AUTO_INCREMENT,
   nombre varchar(255) DEFAULT NULL,
   descripcion varchar(255) DEFAULT NULL,
+  imagen varchar(255) DEFAULT NULL,
   PRIMARY KEY (id)
 );
 
-INSERT INTO `categorias` (`nombre`, `descripcion`) VALUES ('River', 'descripcion de River');
-INSERT INTO `categorias` (`nombre`, `descripcion`) VALUES ('Boca', 'descripcion de Boca');
-INSERT INTO `categorias` (`nombre`, `descripcion`) VALUES ('San Lorenzo', 'descripcion de San Lorenzo');
-INSERT INTO `categorias` (`nombre`, `descripcion`) VALUES ('Independiente', 'descripcion de Independiente');
-INSERT INTO `categorias` (`nombre`, `descripcion`) VALUES ('Racing', 'descripcion de Racing');
+INSERT INTO `categorias` (`nombre`, `descripcion`, `imagen`) VALUES ('River', 'descripcion de River', 'river.png');
+INSERT INTO `categorias` (`nombre`, `descripcion`, `imagen`) VALUES ('Boca', 'descripcion de Boca', 'boca.png');
+INSERT INTO `categorias` (`nombre`, `descripcion`, `imagen`) VALUES ('San Lorenzo', 'descripcion de San Lorenzo', 'san-lorenzo.png');
+INSERT INTO `categorias` (`nombre`, `descripcion`, `imagen`) VALUES ('Independiente', 'descripcion de Independiente', 'independiente.png');
+INSERT INTO `categorias` (`nombre`, `descripcion`, `imagen`) VALUES ('Racing', 'descripcion de Racing', 'racing.png');
 
 
 -- Table structure and data for table `envios`
@@ -53,7 +54,7 @@ INSERT INTO `facturas` (`total_a_pagar`) VALUES (1000);
 CREATE TABLE `productos` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `categoria_fk` int(11) DEFAULT NULL,
-  `nombre` varchar(255) DEFAULT NULL,
+  `producto` varchar(255) DEFAULT NULL,
   `imagen` varchar(255) DEFAULT NULL,
   `descripcion` varchar(510) DEFAULT NULL,
   `precio_lista` decimal(10,0) DEFAULT NULL,
@@ -65,37 +66,36 @@ CREATE TABLE `productos` (
   CONSTRAINT `productos_ibfk_1` FOREIGN KEY (`categoria_fk`) REFERENCES `categorias` (`id`)
 );
 
-INSERT INTO `productos` (`categoria_fk`, `nombre`, `imagen`, `descripcion`, `precio_lista`, `descuento`, `stock`, `deleteable`) VALUES (1, 'Camiseta de Fútbol', 'camiseta_futbol.jpg', 'Camiseta oficial de fútbol de Argentina', 500, 20, 50, 0);
-INSERT INTO `productos` (`categoria_fk`, `nombre`, `imagen`, `descripcion`, `precio_lista`, `descuento`, `stock`, `deleteable`) VALUES (2, 'Zapatillas de Running', 'zapatillas_running.jpg', 'Zapatillas ideales para correr', 800, 15, 30, 0);
-INSERT INTO `productos` (`categoria_fk`, `nombre`, `imagen`, `descripcion`, `precio_lista`, `descuento`, `stock`, `deleteable`) VALUES (3, 'Shorts Deportivos', 'shorts_deportivos.jpg', 'Shorts cómodos para actividades físicas', 300, 10, 70, 0);
-INSERT INTO `productos` (`categoria_fk`, `nombre`, `imagen`, `descripcion`, `precio_lista`, `descuento`, `stock`, `deleteable`) VALUES (1, 'Mochila Deportiva', 'mochila_deportiva.jpg', 'Mochila con varios compartimentos para deportistas', 600, 25, 40, 0);
-INSERT INTO `productos` (`categoria_fk`, `nombre`, `imagen`, `descripcion`, `precio_lista`, `descuento`, `stock`, `deleteable`) VALUES (4, 'Guantes de Boxeo', 'guantes_boxeo.jpg', 'Guantes profesionales para entrenamiento de boxeo', 200, 5, 20, 0);
+INSERT INTO `productos` (`categoria_fk`, `producto`, `imagen`, `descripcion`, `precio_lista`, `descuento`, `stock`, `deleteable`) VALUES (1, 'Camiseta de Fútbol', 'camiseta_futbol.jpg', 'Camiseta oficial de fútbol de Argentina', 500, 20, 50, 0);
+INSERT INTO `productos` (`categoria_fk`, `producto`, `imagen`, `descripcion`, `precio_lista`, `descuento`, `stock`, `deleteable`) VALUES (2, 'Zapatillas de Running', 'zapatillas_running.jpg', 'Zapatillas ideales para correr', 800, 15, 30, 0);
+INSERT INTO `productos` (`categoria_fk`, `producto`, `imagen`, `descripcion`, `precio_lista`, `descuento`, `stock`, `deleteable`) VALUES (3, 'Shorts Deportivos', 'shorts_deportivos.jpg', 'Shorts cómodos para actividades físicas', 300, 10, 70, 0);
+INSERT INTO `productos` (`categoria_fk`, `producto`, `imagen`, `descripcion`, `precio_lista`, `descuento`, `stock`, `deleteable`) VALUES (1, 'Mochila Deportiva', 'mochila_deportiva.jpg', 'Mochila con varios compartimentos para deportistas', 600, 25, 40, 0);
+INSERT INTO `productos` (`categoria_fk`, `producto`, `imagen`, `descripcion`, `precio_lista`, `descuento`, `stock`, `deleteable`) VALUES (4, 'Guantes de Boxeo', 'guantes_boxeo.jpg', 'Guantes profesionales para entrenamiento de boxeo', 200, 5, 20, 0);
 
 -- Table structure and data for table `clientes`
 CREATE TABLE `clientes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_cliente` int(11) NOT NULL AUTO_INCREMENT,
   `envio_fk` int(11) DEFAULT NULL,
   `nombre` varchar(255) DEFAULT NULL,
   `apellido` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `contrasena` varchar(255) DEFAULT NULL,
   `rol` tinyint(1) DEFAULT NULL,
-  `imagen` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `envio_fk` (`envio_fk`),
   CONSTRAINT `clientes_ibfk_1` FOREIGN KEY (`envio_fk`) REFERENCES `envios` (`id`)
 );
 
-INSERT INTO `clientes` (`envio_fk`, `nombre`, `apellido`, `email`, `contrasena`, `rol`, `imagen`) 
-VALUES (NULL, 'María', 'González', 'maria@gmail.com', '1234', NULL, 'imagen1.jpg');
-INSERT INTO `clientes` (`envio_fk`, `nombre`, `apellido`, `email`, `contrasena`, `rol`, `imagen`) 
-VALUES (NULL, 'Carlos', 'Martínez', 'carlos@gmail.com', '1234', NULL, 'imagen2.jpg');
-INSERT INTO `clientes` (`envio_fk`, `nombre`, `apellido`, `email`, `contrasena`, `rol`, `imagen`) 
-VALUES (NULL, 'Laura', 'Rodríguez', 'laura@gmail.com', '1234', NULL, 'imagen3.jpg');
-INSERT INTO `clientes` (`envio_fk`, `nombre`, `apellido`, `email`, `contrasena`, `rol`, `imagen`) 
-VALUES (NULL, 'Juan', 'Pérez', 'juan@gmail.com', '1234', NULL, 'imagen4.jpg');
-INSERT INTO `clientes` (`envio_fk`, `nombre`, `apellido`, `email`, `contrasena`, `rol`, `imagen`) 
-VALUES (NULL, 'Ana', 'López', 'ana@gmail.com', '1234', NULL, 'imagen5.jpg');
+INSERT INTO `clientes` (`envio_fk`, `nombre`, `apellido`, `email`, `contrasena`, `rol`) 
+VALUES (NULL, 'María', 'González', 'maria@gmail.com', '1234', NULL);
+INSERT INTO `clientes` (`envio_fk`, `nombre`, `apellido`, `email`, `contrasena`, `rol`) 
+VALUES (NULL, 'Carlos', 'Martínez', 'carlos@gmail.com', '1234', NULL);
+INSERT INTO `clientes` (`envio_fk`, `nombre`, `apellido`, `email`, `contrasena`, `rol`) 
+VALUES (NULL, 'Laura', 'Rodríguez', 'laura@gmail.com', '1234', NULL);
+INSERT INTO `clientes` (`envio_fk`, `nombre`, `apellido`, `email`, `contrasena`, `rol`) 
+VALUES (NULL, 'Juan', 'Pérez', 'juan@gmail.com', '1234', NULL);
+INSERT INTO `clientes` (`envio_fk`, `nombre`, `apellido`, `email`, `contrasena`, `rol`) 
+VALUES (NULL, 'Ana', 'López', 'ana@gmail.com', '1234', NULL);
 
 
 -- Table structure and data for table `pedidos`

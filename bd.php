@@ -581,30 +581,6 @@ function eliminarProductoDelCarrito($usuarioID, $productoID) {
 }
 
 
-// Función para traer las ventas concretadas
-function traerVentas() {
-    $conn = conectarBDUsuario();
-    if ($conn === NULL) {
-        return "";
-    }
-    $sql = "SELECT * FROM pedidos
-            JOIN clientes ON pedidos.cliente_fk = clientes.id_cliente
-            JOIN productos ON pedidos.producto_fk = productos.id";
-    $prods = $conn->prepare($sql);
-    if (!$prods) {
-        return "";
-    }
-    $prods->execute();
-    $result = $prods->get_result();
-    if (!$result) {
-        return "";
-    }
-    $data = $result->fetch_all(MYSQLI_ASSOC);
-    cerrarBDConexion($conn);
-    return $data;
-}
-
-
 // Función para traer las compras de un usuario
 function buscarPedidosUsuario($usuarioEmail) {
     $conn = conectarBDUsuario();
@@ -657,6 +633,28 @@ function buscarPedidosUsuario($usuarioEmail) {
 }
 
 
+// Función para traer las ventas concretadas
+function traerVentas() {
+    $conn = conectarBDUsuario();
+    if ($conn === NULL) {
+        return "";
+    }
+    $sql = "SELECT * FROM pedidos
+            JOIN clientes ON pedidos.cliente_fk = clientes.id_cliente
+            JOIN productos ON pedidos.producto_fk = productos.id";
+    $prods = $conn->prepare($sql);
+    if (!$prods) {
+        return "";
+    }
+    $prods->execute();
+    $result = $prods->get_result();
+    if (!$result) {
+        return "";
+    }
+    $data = $result->fetch_all(MYSQLI_ASSOC);
+    cerrarBDConexion($conn);
+    return $data;
+}
 
 
 
