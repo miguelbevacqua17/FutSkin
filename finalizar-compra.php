@@ -35,35 +35,6 @@ if (isset($_SESSION['email'])) {
 
 $sesionUsuario = controlarSesion();
 
-// Declaramos las variables para el contenido de los input
-$email = "no data";
-$apellido = "no data";
-$nombre = "no data";
-$direccion = "no data";
-$altura = "no data";
-$piso = "no data";
-$barrio = "no data";
-
-if ($sesionUsuario != NULL) {
-    // Abrimos la conexión con la base de datos
-    $conn = conectarBDUsuario();
-    // Ejecutar consulta
-    $resultado = consultaDatosUsuario($conn, $sesionUsuario);
-    // Cerraramos la conexión '$conn' de la base de datos
-    cerrarBDConexion($conn);
-
-    if ($resultado != NULL) {
-        // Obtenemos los datos del usuario
-        $email = $resultado['email'];
-        $apellido = $resultado['apellido'];
-        $nombre = $resultado['nombre'];
-        $direccion = $resultado['direccion'];   
-        $altura = $resultado['altura'];   
-        $piso = $resultado['piso'];   
-        $barrio = $resultado['barrio'];      
-        $usuarioId = $resultado['id_cliente'];           
-    }
-}
 
  $id = $usuario['id_cliente'];
  
