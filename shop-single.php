@@ -59,6 +59,7 @@ $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
 
  // En esta variable ejecutamos la funcion para agregar el producto al carrito
 $carritoFinal = agregarProductoAlCarrito($usuarioID, $productoID, $precio);
+
 ?>
 
 <!DOCTYPE html>

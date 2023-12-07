@@ -22,7 +22,6 @@
                 echo "User Name: $nombre // ";
                 echo "User ID: $id // ";
                 echo "User Role: $rol";
-
             } else {
                 echo "Error al obtener datos del usuario.";
             }
@@ -179,7 +178,7 @@
                         <p>Estas son los productos más buscados por los hinchas.</p>
                 </div>
             </div>
-            <div class="row"><?php echo $productosHTML?></div>
+            <div class="row"><?php echo $productosHTML ?></div>
         </div>
     </section>
     <!-- FIN PRODUCTOS -->

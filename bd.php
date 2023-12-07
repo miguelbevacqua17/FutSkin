@@ -344,31 +344,101 @@ function traerProductosHTML($tipo = "default") {
     return $html;
 }
 
-// Función para traer datos de la columna de una tabla
-function traerColumnaTabla($columna, $tabla) {
-    // Conectamos a la base de datos
+
+// Función para traer los datos de una categoria
+function obtenerDetalleCategoria($categoriaID) {
     $conn = conectarBDUsuario();
-    // Verificamos la conexión
     if ($conn === NULL) {
-        return array();
+        return NULL;
     }
-    // Consultamos la columna específica de la tabla
-    $sql = "SELECT $columna FROM $tabla";
+    $sql = "SELECT * FROM categorias WHERE id = ?";
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
-        return array();
+        return NULL;
     }
+    $stmt->bind_param("i", $categoriaID);
     $stmt->execute();
     $result = $stmt->get_result();
-    if (!$result) {
-        return array();
+    if ($result->num_rows === 0) {
+        cerrarBDConexion($conn);
+        return NULL;
     }
-    $data = $result->fetch_all(MYSQLI_ASSOC);
-    // Cerramos la conexión a la base de datos
+    $categoria = $result->fetch_assoc();
     cerrarBDConexion($conn);
-    // Obtenemos solo los valores de la columna
-    $valoresColumna = array_column($data, $columna);
-    return $valoresColumna;
+    return $categoria;
+}
+
+// Función para traer todos los productos de una categoria (1)
+function obtenerProductosPorCategoria($conn, $categoriaId) {
+    $productos = [];
+    // Verificamos la conexión a la base de datos
+    if ($conn !== NULL) {
+        try {
+            // Consultamos productos por categoría
+            $sql = "SELECT * FROM productos WHERE categoria_fk = ?";
+            $stmt = $conn->prepare($sql);
+            // Verificamos si la preparación de la consulta fue exitosa
+            if ($stmt) {
+                // Bind parameters
+                $stmt->bind_param('i', $categoriaId);
+                // Ejecutamos la consulta
+                $stmt->execute();
+                // Obtenemos el resultado
+                $result = $stmt->get_result();
+                // Verificamos si se obtuvieron resultados
+                if ($result) {
+                    // Obtenemos los productos
+                    $productos = $result->fetch_all(MYSQLI_ASSOC);
+                }
+                $stmt->close();
+            } else {
+                error_log("Error preparing statement: " . $conn->error);
+            }
+        } catch (Exception $e) {
+            error_log("Error: " . $e->getMessage());
+        }
+    }
+    return $productos;
+}
+
+
+// Función para traer todos los productos de una categoria (2)
+function mostrarContenidoSegunCategoria($productosPorCategoria) {
+    $productosHTML = traerProductosHTML("detalle");
+    // Verificamos si la variable $productosPorCategoria está definida y no está vacía
+    if (isset($productosPorCategoria) && !empty($productosPorCategoria)) {
+        // Mostramos los productos por categoría
+        $html = "";
+        foreach ($productosPorCategoria as $producto) {
+            $precio = $producto['precio_lista']; 
+            $nombre = $producto['producto'];
+            $descripcion = $producto['descripcion'];
+            $imagen = $producto['imagen'];
+            $id = $producto['id'];
+            
+            // HTML para vista detallada
+            $html .= '<div class="col-md-4">';
+            $html .= '<a href="shop-single.php?id=' . $id . '" class="text-decoration-none">'; 
+            $html .= '<div class="card mb-4 product-wap rounded-0">';
+            $html .= '<div class="card rounded-0">';
+            $html .= '<img class="card-img rounded-0 img-fluid" src="/uploads/' . $imagen . '">';
+            $html .= '<div class="card-img-overlay rounded-0 product-overlay d-flex align-items-center justify-content-center">';
+            $html .= '</div>';
+            $html .= '<div class="card-body">';
+            $html .= '<a href="shop-single.php?id=' . $id . '" class="h3 text-center">' . $nombre . '</a>';
+            $html .= '<ul class="w-100 list-unstyled d-flex justify-content-between mb-0">';
+            $html .= '</ul>';
+            $html .= '<p class="text-right mb-0">$' . $precio . '</p>';
+            $html .= '</div>';
+            $html .= '</div>';
+            $html .= '</div>';
+            $html .= '</a>';
+            $html .= '</div>';
+        }
+        echo $html;
+    } else {
+        echo $productosHTML;
+    }
 }
 
 
@@ -399,27 +469,45 @@ function obtenerDetalleProducto($productoID) {
 }
 
 
-// Función para traer los datos de una categoria
-function obtenerDetalleCategoria($categoriaID) {
+// Función para obtener las categorias 
+function obtenerCategorias() {
     $conn = conectarBDUsuario();
     if ($conn === NULL) {
-        return NULL;
+        return array();
     }
-    $sql = "SELECT * FROM categorias WHERE id = ?";
+    $sql = "SELECT id, nombre FROM categorias";
+    $result = $conn->query($sql);
+    $categorias = array();
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $categorias[$row['id']] = $row['nombre'];
+        }
+    }
+    cerrarBDConexion($conn);
+    return $categorias;
+}
+
+
+// Función para agregar un producto al carrito del usuario
+function agregarProductoAlCarrito($usuarioID, $productoID, $precio) {
+    $conn = conectarBDUsuario();
+    if ($conn === NULL) {
+        return false;
+    }
+    $sql = "INSERT INTO pedidos (cliente_fk, producto_fk, precio_venta, estado, cantidad_prod) VALUES (?, ?, ?, 'pendiente', 1)";
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
-        return NULL;
-    }
-    $stmt->bind_param("i", $categoriaID);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows === 0) {
         cerrarBDConexion($conn);
-        return NULL;
+        return false;
     }
-    $categoria = $result->fetch_assoc();
+    $stmt->bind_param("iis", $usuarioID, $productoID, $precio);
+    $resultado = $stmt->execute();
+    if (!$resultado) {
+        cerrarBDConexion($conn);
+        return false;
+    }
     cerrarBDConexion($conn);
-    return $categoria;
+    return $resultado;
 }
 
 
@@ -490,72 +578,6 @@ function eliminarProductoDelCarrito($usuarioID, $productoID) {
     $success = $stmt->execute();
     cerrarBDConexion($conn);
     return $success;
-}
-
-
-// Función para crear/agregar un nuevo producto
-function insertarNuevoProducto($categoriaID, $nombre, $imagen, $descripcion, $precioLista, $descuento, $stock) {
-    $conn = conectarBDUsuario();
-    if ($conn === NULL) {
-        return false;
-    }
-    $sql = "INSERT INTO productos (categoria_fk, producto, imagen, descripcion, precio_lista, descuento, stock, deleteable) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, 0)";
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        cerrarBDConexion($conn);
-        return false;
-    }
-    $stmt->bind_param("isssisi", $categoriaID, $nombre, $imagen, $descripcion, $precioLista, $descuento, $stock);
-    $resultado = $stmt->execute();
-    if (!$resultado) {
-        cerrarBDConexion($conn);
-        return false;
-    }
-    cerrarBDConexion($conn);
-    return $resultado;
-}
-
-
-// Función para agregar un producto al carrito del usuario
-function agregarProductoAlCarrito($usuarioID, $productoID, $precio) {
-    $conn = conectarBDUsuario();
-    if ($conn === NULL) {
-        return false;
-    }
-    $sql = "INSERT INTO pedidos (cliente_fk, producto_fk, precio_venta, estado, cantidad_prod) VALUES (?, ?, ?, 'pendiente', 1)";
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        cerrarBDConexion($conn);
-        return false;
-    }
-    $stmt->bind_param("iis", $usuarioID, $productoID, $precio);
-    $resultado = $stmt->execute();
-    if (!$resultado) {
-        cerrarBDConexion($conn);
-        return false;
-    }
-    cerrarBDConexion($conn);
-    return $resultado;
-}
-
-
-// Función para obtener las categorias 
-function obtenerCategorias() {
-    $conn = conectarBDUsuario();
-    if ($conn === NULL) {
-        return array();
-    }
-    $sql = "SELECT id, nombre FROM categorias";
-    $result = $conn->query($sql);
-    $categorias = array();
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $categorias[$row['id']] = $row['nombre'];
-        }
-    }
-    cerrarBDConexion($conn);
-    return $categorias;
 }
 
 
@@ -635,78 +657,58 @@ function buscarPedidosUsuario($usuarioEmail) {
 }
 
 
-// Función para traer todos los productos de una categoria (1)
-function obtenerProductosPorCategoria($conn, $categoriaId) {
-    $productos = [];
-    // Verificamos la conexión a la base de datos
-    if ($conn !== NULL) {
-        try {
-            // Consultamos productos por categoría
-            $sql = "SELECT * FROM productos WHERE categoria_fk = ?";
-            $stmt = $conn->prepare($sql);
-            // Verificamos si la preparación de la consulta fue exitosa
-            if ($stmt) {
-                // Bind parameters
-                $stmt->bind_param('i', $categoriaId);
-                // Ejecutamos la consulta
-                $stmt->execute();
-                // Obtenemos el resultado
-                $result = $stmt->get_result();
-                // Verificamos si se obtuvieron resultados
-                if ($result) {
-                    // Obtenemos los productos
-                    $productos = $result->fetch_all(MYSQLI_ASSOC);
-                }
-                $stmt->close();
-            } else {
-                error_log("Error preparing statement: " . $conn->error);
-            }
-        } catch (Exception $e) {
-            error_log("Error: " . $e->getMessage());
-        }
+
+
+
+// Función para crear/agregar un nuevo producto
+function insertarNuevoProducto($categoriaID, $nombre, $imagen, $descripcion, $precioLista, $descuento, $stock) {
+    $conn = conectarBDUsuario();
+    if ($conn === NULL) {
+        return false;
     }
-    return $productos;
+    $sql = "INSERT INTO productos (categoria_fk, producto, imagen, descripcion, precio_lista, descuento, stock, deleteable) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, 0)";
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        cerrarBDConexion($conn);
+        return false;
+    }
+    $stmt->bind_param("isssisi", $categoriaID, $nombre, $imagen, $descripcion, $precioLista, $descuento, $stock);
+    $resultado = $stmt->execute();
+    if (!$resultado) {
+        cerrarBDConexion($conn);
+        return false;
+    }
+    cerrarBDConexion($conn);
+    return $resultado;
 }
 
 
-// Función para traer todos los productos de una categoria (2)
-function mostrarContenidoSegunCategoria($productosPorCategoria) {
-    $productosHTML = traerProductosHTML("detalle");
-    // Verificamos si la variable $productosPorCategoria está definida y no está vacía
-    if (isset($productosPorCategoria) && !empty($productosPorCategoria)) {
-        // Mostramos los productos por categoría
-        $html = "";
-        foreach ($productosPorCategoria as $producto) {
-            $precio = $producto['precio_lista']; 
-            $nombre = $producto['producto'];
-            $descripcion = $producto['descripcion'];
-            $imagen = $producto['imagen'];
-            $id = $producto['id'];
-            
-            // HTML para vista detallada
-            $html .= '<div class="col-md-4">';
-            $html .= '<a href="shop-single.php?id=' . $id . '" class="text-decoration-none">'; 
-            $html .= '<div class="card mb-4 product-wap rounded-0">';
-            $html .= '<div class="card rounded-0">';
-            $html .= '<img class="card-img rounded-0 img-fluid" src="/uploads/' . $imagen . '">';
-            $html .= '<div class="card-img-overlay rounded-0 product-overlay d-flex align-items-center justify-content-center">';
-            $html .= '</div>';
-            $html .= '<div class="card-body">';
-            $html .= '<a href="shop-single.php?id=' . $id . '" class="h3 text-center">' . $nombre . '</a>';
-            $html .= '<ul class="w-100 list-unstyled d-flex justify-content-between mb-0">';
-            $html .= '</ul>';
-            $html .= '<p class="text-right mb-0">$' . $precio . '</p>';
-            $html .= '</div>';
-            $html .= '</div>';
-            $html .= '</div>';
-            $html .= '</a>';
-            $html .= '</div>';
-        }
-        echo $html;
-    } else {
-        echo $productosHTML;
+// Función para traer datos de la columna de una tabla
+function traerColumnaTabla($columna, $tabla) {
+    // Conectamos a la base de datos
+    $conn = conectarBDUsuario();
+    // Verificamos la conexión
+    if ($conn === NULL) {
+        return array();
     }
+    // Consultamos la columna específica de la tabla
+    $sql = "SELECT $columna FROM $tabla";
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        return array();
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if (!$result) {
+        return array();
+    }
+    $data = $result->fetch_all(MYSQLI_ASSOC);
+    // Cerramos la conexión a la base de datos
+    cerrarBDConexion($conn);
+    // Obtenemos solo los valores de la columna
+    $valoresColumna = array_column($data, $columna);
+    return $valoresColumna;
 }
-
 
 ?>

@@ -2,6 +2,7 @@
 
 // Iniciamos la sesion
 session_start();
+
 if (isset($_GET["accion"])){
     if ($_GET["accion"]=="cerrarSesion" && isset($_SESSION['email'])){
       cerrarSesion('email');

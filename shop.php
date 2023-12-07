@@ -25,6 +25,8 @@
   } else {
       echo "No hay sesión iniciada.";
   }
+   
+  
     $categoriasHTML = traerCategoriasHTML();
     $productosHTML = traerProductosHTML("detalle");
     $nombresCategorias = traerColumnaTabla('nombre', 'categorias');
